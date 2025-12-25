@@ -1,0 +1,98 @@
+package entities
+
+import (
+	"fmt"
+	"hinsun-backend/internal/core/failure"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+const (
+	MaxPositionLength   = 100
+	MaxCompanyLength    = 100
+	MaxLocationLength   = 100
+	MaxTechnologys      = 20
+	MaxResponsibilities = 5
+)
+
+type ExperienceEntity struct {
+	ID               uuid.UUID
+	OrderIdx         int32
+	Position         string
+	Company          string
+	Location         string
+	Technologies     []string
+	Responsibilities []string
+	Period           string
+	CreatedAt        int64
+	UpdatedAt        int64
+	DeletedAt        *int64
+}
+
+func NewExperience(orderIdx int32, position string, company string, location string, technologies []string, responsibilities []string, period string) *ExperienceEntity {
+	now := time.Now()
+	return &ExperienceEntity{
+		ID:               uuid.New(),
+		OrderIdx:         orderIdx,
+		Position:         position,
+		Company:          company,
+		Location:         location,
+		Technologies:     technologies,
+		Responsibilities: responsibilities,
+		Period:           period,
+		CreatedAt:        now.Unix(),
+		UpdatedAt:        now.Unix(),
+		DeletedAt:        nil,
+	}
+}
+
+func ValidatePosition(position string) error {
+	if len(position) > MaxPositionLength {
+		return failure.NewValidationFailure(
+			fmt.Sprintf("position length exceeds maximum of %d characters", MaxPositionLength),
+		)
+	}
+
+	return nil
+}
+
+func ValidateCompany(company string) error {
+	if len(company) > MaxCompanyLength {
+		return failure.NewValidationFailure(
+			fmt.Sprintf("company length exceeds maximum of %d characters", MaxCompanyLength),
+		)
+	}
+
+	return nil
+}
+
+func ValidateLocation(location string) error {
+	if len(location) > MaxLocationLength {
+		return failure.NewValidationFailure(
+			fmt.Sprintf("location length exceeds maximum of %d characters", MaxLocationLength),
+		)
+	}
+
+	return nil
+}
+
+func ValidateTechnologies(technologies []string) error {
+	if len(technologies) > MaxTechnologys {
+		return failure.NewValidationFailure(
+			fmt.Sprintf("number of technologies exceeds maximum of %d", MaxTechnologys),
+		)
+	}
+
+	return nil
+}
+
+func ValidateResponsibilities(responsibilities []string) error {
+	if len(responsibilities) > MaxResponsibilities {
+		return failure.NewValidationFailure(
+			fmt.Sprintf("number of responsibilities exceeds maximum of %d", MaxResponsibilities),
+		)
+	}
+
+	return nil
+}

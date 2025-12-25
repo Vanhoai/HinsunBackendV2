@@ -1,0 +1,135 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+coverage.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Environment variables
+*.env
+
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads and media
+uploads/
+media/
+storage/
+
+# Build artifacts
+build/
+_build/
+*.o
+*.a
+
+# Air live reload
+tmp/
+
+# Documentation
+#docs/swagger.json
+#docs/swagger.yaml
+#docs/docs.go
+
+# Migration tools
+*.bak
+
+# OS specific
+Thumbs.db
+.DS_Store
+
+# Docker
+.dockerignore
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.p12
+
+# Config files with sensitive data
+config/local.yml
+config/production.yml
+config/*.local.yml
+
+# Test coverage
+profile.cov
+coverage.txt
+
+# Performance
+*.prof
+*.pprof
+
+# Compiled Object files
+*.slo
+*.lo
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Static libraries
+*.lai
+*.la
+
+# Debug files
+debug
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Frontend artifacts (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Generated files
+**/mocks/
+**/*_mock.go
+**/*_gen.go
+
+# Air (Go live reload)
+.air.toml
+
+# Env
