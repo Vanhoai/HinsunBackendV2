@@ -18,3 +18,11 @@ func NewNotFoundFailure(message string) *Failure {
 func NewValidationFailure(message string) *Failure {
 	return NewFailure(ValidationFailure, message)
 }
+
+func NewDatabaseFailure(message string) *Failure {
+	return NewFailure(DatabaseFailure, message)
+}
+
+func NewConflictFailure(message string) *Failure {
+	return NewFailure(ConflictFailure, message)
+}

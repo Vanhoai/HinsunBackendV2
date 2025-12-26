@@ -34,12 +34,15 @@ const (
 
 	// InternalFailure represents internal domain errors
 	InternalFailure FailureCode = "INTERNAL_FAILURE"
+
+	// DatabaseFailure represents database related errors
+	DatabaseFailure FailureCode = "DATABASE_FAILURE"
 )
 
 type Failure struct {
 	Code    FailureCode
 	Message string
-	Details map[string]interface{}
+	Details map[string]any
 	Cause   error
 }
 

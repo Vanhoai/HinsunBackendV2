@@ -76,8 +76,9 @@ func loadAppConfig() AppConfig {
 func loadServerConfig() ServerConfig {
 	return ServerConfig{
 		Address:      getEnv("SERVER_ADDRESS", ":8080"),
-		ReadTimeout:  getEnv("SERVER_READ_TIMEOUT", "15s"),
-		WriteTimeout: getEnv("SERVER_WRITE_TIMEOUT", "15s"),
+		ReadTimeout:  getEnvAsInt("SERVER_READ_TIMEOUT", 15),
+		WriteTimeout: getEnvAsInt("SERVER_WRITE_TIMEOUT", 15),
+		IdleTimeout:  getEnvAsInt("SERVER_IDLE_TIMEOUT", 60),
 	}
 }
 
@@ -92,8 +93,17 @@ func loadMetricsConfig() MetricsConfig {
 // loadLogConfig loads logging configuration
 func loadLogConfig() LogConfig {
 	return LogConfig{
-		Level:  getEnv("LOG_LEVEL", "info"),
-		Format: getEnv("LOG_FORMAT", "json"),
+		SavePath:         getEnv("LOG_SAVE_PATH", "./tmp"),
+		FileName:         getEnv("LOG_FILE_NAME", "app"),
+		MaxSize:          getEnvAsInt("LOG_MAX_SIZE", 100),
+		MaxAge:           getEnvAsInt("LOG_MAX_AGE", 30),
+		LocalTime:        getEnvAsBool("LOG_LOCAL_TIME", true),
+		Compress:         getEnvAsBool("LOG_COMPRESS", true),
+		Level:            getEnv("LOG_LEVEL", "debug"),
+		EnableConsole:    getEnvAsBool("LOG_ENABLE_CONSOLE", true),
+		EnableColor:      getEnvAsBool("LOG_ENABLE_COLOR", true),
+		EnableCaller:     getEnvAsBool("LOG_ENABLE_CALLER", true),
+		EnableStacktrace: getEnvAsBool("LOG_ENABLE_STACKTRACE", false),
 	}
 }
 

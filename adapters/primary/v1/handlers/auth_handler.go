@@ -1,17 +1,30 @@
-package v1
+package handlers
 
 import (
 	"hinsun-backend/adapters/shared/https"
+	"hinsun-backend/internal/domain/applications"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func AuthHandler() http.Handler {
-	authMux := http.NewServeMux()
+type AuthHandler struct {
+	app applications.AuthAppService
+}
 
-	authMux.HandleFunc("/email-auth", authEmail)
-	authMux.HandleFunc("/oauth2", oauth2)
+func NewAuthHandler(app applications.AuthAppService) *AuthHandler {
+	return &AuthHandler{
+		app: app,
+	}
+}
 
-	return authMux
+func (ah *AuthHandler) Handler() chi.Router {
+	r := chi.NewRouter()
+
+	r.Post("/auth-email", authEmail)
+	r.Get("/oauth2", oauth2)
+
+	return r
 }
 
 // authEmail godoc
@@ -26,9 +39,9 @@ func AuthHandler() http.Handler {
 // @Failure      401  {object}  ErrorResponse
 // @Router       /auth [post]
 func authEmail(w http.ResponseWriter, r *http.Request) {
-	https.JsonResponse(w, http.StatusOK, `{"message": "You All Signed In Mister Wick 🧘🏽🧘🏽🧘🏽"}`)
+	https.ResponseSuccess(w, http.StatusOK, "Auth email endpoint", nil)
 }
 
 func oauth2(w http.ResponseWriter, r *http.Request) {
-	https.JsonResponse(w, http.StatusOK, `{"message": "OAuth2 endpoint"}`)
+	https.ResponseSuccess(w, http.StatusOK, "OAuth2 endpoint", nil)
 }

@@ -1,14 +1,119 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	v1 "hinsun-backend/adapters/primary/v1"
 	v2 "hinsun-backend/adapters/primary/v2"
+	"hinsun-backend/adapters/shared/di"
 	"hinsun-backend/configs"
 	_ "hinsun-backend/docs"
-	"log"
+	"hinsun-backend/internal/core/log"
 	"net/http"
+	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"go.uber.org/fx"
+)
+
+type HTTPServer struct {
+	server  *http.Server
+	address string
+}
+
+// ServerParams contains all dependencies for HTTP server
+type ServerParams struct {
+	fx.In
+
+	// V1 Handlers
+	V1Routes *v1.V1Routes
+	V2Routes *v2.V2Routes
+}
+
+// ProvideHTTPServer creates and configures the HTTP server
+func ProvideHTTPServer(params ServerParams) *HTTPServer {
+	return NewHTTPServer(
+		configs.GlobalConfig.Server.Address,
+		params,
+	)
+}
+
+func NewHTTPServer(address string, params ServerParams) *HTTPServer {
+	r := chi.NewRouter()
+
+	// Global middlewares
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Timeout(60 * time.Second))
+
+	// Health check
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hi there! I'm healthy 🐳"))
+	})
+
+	// Swagger
+	r.Mount("/swagger/", httpSwagger.WrapHandler)
+
+	// API Routes
+	r.Mount("/api/v1", params.V1Routes.RegisterRoutes())
+	r.Mount("/api/v2", params.V2Routes.RegisterRoutes())
+
+	server := &http.Server{
+		Addr:         address,
+		Handler:      r,
+		ReadTimeout:  time.Duration(configs.GlobalConfig.Server.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(configs.GlobalConfig.Server.WriteTimeout) * time.Second,
+		IdleTimeout:  time.Duration(configs.GlobalConfig.Server.IdleTimeout) * time.Second,
+	}
+
+	return &HTTPServer{
+		server:  server,
+		address: address,
+	}
+}
+
+func (s *HTTPServer) Start() error {
+	log.Logger.Info("🚀 Server starting on address " + s.address)
+	log.Logger.Info("📚 Swagger UI: http://" + s.address + "/swagger/index.html")
+	log.Logger.Info("💚 Health check: http://" + s.address + "/health")
+
+	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("failed to start server: %w", err)
+	}
+
+	return nil
+}
+
+func (s *HTTPServer) Stop(ctx context.Context) error {
+	log.Logger.Info("🛑 Shutting down server")
+	return s.server.Shutdown(ctx)
+}
+
+// RegisterServerHooks registers lifecycle hooks for HTTP server
+func RegisterServerHooks(lc fx.Lifecycle, server *HTTPServer) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go func() {
+				if err := server.Start(); err != nil {
+					log.Logger.Fatal("Server error: " + err.Error())
+				}
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			return server.Stop(ctx)
+		},
+	})
+}
+
+var AppModule = fx.Module("http_server",
+	fx.Provide(ProvideHTTPServer),
+	fx.Invoke(RegisterServerHooks),
 )
 
 // @title           Hinsun Backend API
@@ -30,20 +135,23 @@ import (
 // @in header
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
-
 func main() {
-	// Initialize configurations
+	// Ensure configurations are initialized
 	configs.Init()
-	mux := http.NewServeMux()
+	log.Init()
 
-	// Register API routes
-	mux.Handle("/api/v1/", v1.RegisterV1Routes())
-	mux.Handle("/api/v2/", v2.RegisterV2Routes())
+	app := fx.New(
+		// Core modules
+		di.DatabaseModule,
+		di.RepositioryModule,
+		di.ServiceModule,
+		di.ApplicationModule,
 
-	// Swagger UI endpoint
-	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+		// HTTP modules
+		di.HandlerModule,
+		di.RouterVersionModule,
+		AppModule,
+	)
 
-	log.Printf("Server starting on %s", configs.GlobalConfig.Server.Address)
-	log.Printf("Swagger UI: http://%s/swagger/index.html", configs.GlobalConfig.Server.Address)
-	log.Fatal(http.ListenAndServe(configs.GlobalConfig.Server.Address, mux))
+	app.Run()
 }

@@ -18,7 +18,7 @@ const (
 
 type ExperienceEntity struct {
 	ID               uuid.UUID
-	OrderIdx         int32
+	OrderIdx         int8
 	Position         string
 	Company          string
 	Location         string
@@ -30,7 +30,27 @@ type ExperienceEntity struct {
 	DeletedAt        *int64
 }
 
-func NewExperience(orderIdx int32, position string, company string, location string, technologies []string, responsibilities []string, period string) *ExperienceEntity {
+func NewExperience(orderIdx int8, position string, company string, location string, technologies []string, responsibilities []string, period string) (*ExperienceEntity, error) {
+	if err := ValidatePosition(position); err != nil {
+		return nil, err
+	}
+
+	if err := ValidateCompany(company); err != nil {
+		return nil, err
+	}
+
+	if err := ValidateLocation(location); err != nil {
+		return nil, err
+	}
+
+	if err := ValidateTechnologies(technologies); err != nil {
+		return nil, err
+	}
+
+	if err := ValidateResponsibilities(responsibilities); err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	return &ExperienceEntity{
 		ID:               uuid.New(),
@@ -44,7 +64,7 @@ func NewExperience(orderIdx int32, position string, company string, location str
 		CreatedAt:        now.Unix(),
 		UpdatedAt:        now.Unix(),
 		DeletedAt:        nil,
-	}
+	}, nil
 }
 
 func ValidatePosition(position string) error {

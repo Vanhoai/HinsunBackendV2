@@ -18,8 +18,9 @@ type AppConfig struct {
 
 type ServerConfig struct {
 	Address      string
-	ReadTimeout  string
-	WriteTimeout string
+	ReadTimeout  int
+	WriteTimeout int
+	IdleTimeout  int
 }
 
 type MetricsConfig struct {
@@ -28,8 +29,17 @@ type MetricsConfig struct {
 }
 
 type LogConfig struct {
-	Level  string
-	Format string
+	SavePath         string
+	FileName         string
+	MaxSize          int
+	MaxAge           int
+	LocalTime        bool
+	Compress         bool
+	Level            string
+	EnableConsole    bool
+	EnableColor      bool
+	EnableCaller     bool
+	EnableStacktrace bool
 }
 
 type DatabaseConfig struct {
