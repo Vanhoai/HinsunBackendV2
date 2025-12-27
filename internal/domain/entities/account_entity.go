@@ -8,17 +8,17 @@ import (
 )
 
 type AccountEntity struct {
-	ID            uuid.UUID
-	Name          string
-	Email         values.Email
-	Password      string
-	EmailVerified bool
-	IsActive      bool
-	Avatar        string
-	Bio           string
-	CreatedAt     int64
-	UpdatedAt     int64
-	DeletedAt     *int64
+	ID            uuid.UUID    `json:"id"`
+	Name          string       `json:"name"`
+	Email         values.Email `json:"email"`
+	Password      string       `json:"password,omitempty"`
+	EmailVerified bool         `json:"emailVerified"`
+	IsActive      bool         `json:"isActive"`
+	Avatar        string       `json:"avatar"`
+	Bio           string       `json:"bio"`
+	CreatedAt     int64        `json:"createdAt"`
+	UpdatedAt     int64        `json:"updatedAt"`
+	DeletedAt     *int64       `json:"deletedAt,omitempty"`
 }
 
 func NewAccount(name string, email values.Email, password string, avatar string, bio string) *AccountEntity {

@@ -436,11 +436,12 @@ func Init() {
 	opts = append(opts, WithCaller(enableCaller))
 
 	// Configure stack traces (defaults to true if not specified)
-	enableStacktrace := configs.GlobalConfig.Log.EnableStacktrace
-	opts = append(opts, WithStacktrace(enableStacktrace))
+	opts = append(opts, WithStacktrace(configs.GlobalConfig.Log.EnableStacktrace))
 
-	// Add file output if global config has log file settings
-	opts = append(opts, WithFile(FileConfigFromGlobal()))
+	// Add file output if global config enables it
+	if configs.GlobalConfig.Log.EnableWriteToFile {
+		opts = append(opts, WithFile(FileConfigFromGlobal()))
+	}
 
 	// Create new logger instance
 	logger, err := New(opts...)

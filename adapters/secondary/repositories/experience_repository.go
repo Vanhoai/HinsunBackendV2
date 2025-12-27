@@ -37,31 +37,31 @@ func (r *experienceRepository) Create(ctx context.Context, experience *entities.
 	return nil
 }
 
-func (r *experienceRepository) Update(ctx context.Context, experience *entities.ExperienceEntity) (*int, error) {
+func (r *experienceRepository) Update(ctx context.Context, experience *entities.ExperienceEntity) (int, error) {
 	rowsAffected, err := gorm.G[models.ExperienceModel](r.db).Where("id = ?", experience.ID).Updates(ctx, models.FromExperienceEntity(experience))
 	if err != nil {
-		return nil, failure.NewDatabaseFailure("Failed to update experience in database").WithCause(err)
+		return 0, failure.NewDatabaseFailure("Failed to update experience in database").WithCause(err)
 	}
 
-	return &rowsAffected, nil
+	return rowsAffected, nil
 }
 
-func (r *experienceRepository) Delete(ctx context.Context, id string) (*int, error) {
+func (r *experienceRepository) Delete(ctx context.Context, id string) (int, error) {
 	rowAffected, err := gorm.G[models.ExperienceModel](r.db).Where("id = ?", id).Delete(ctx)
 	if err != nil {
-		return nil, failure.NewDatabaseFailure("Failed to delete experience from database").WithCause(err)
+		return 0, failure.NewDatabaseFailure("Failed to delete experience from database").WithCause(err)
 	}
 
-	return &rowAffected, nil
+	return rowAffected, nil
 }
 
-func (r *experienceRepository) DeleteMany(ctx context.Context, ids []string) (*int, error) {
+func (r *experienceRepository) DeleteMany(ctx context.Context, ids []string) (int, error) {
 	rowAffected, err := gorm.G[models.ExperienceModel](r.db).Where("id IN ?", ids).Delete(ctx)
 	if err != nil {
-		return nil, failure.NewDatabaseFailure("Failed to delete experiences from database").WithCause(err)
+		return 0, failure.NewDatabaseFailure("Failed to delete experiences from database").WithCause(err)
 	}
 
-	return &rowAffected, nil
+	return rowAffected, nil
 }
 
 func (r *experienceRepository) FindByID(ctx context.Context, id string) (*entities.ExperienceEntity, error) {

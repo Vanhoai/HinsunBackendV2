@@ -2,6 +2,8 @@ package applications
 
 import (
 	"context"
+	"hinsun-backend/internal/core/failure"
+	"hinsun-backend/internal/core/types"
 	"hinsun-backend/internal/domain/entities"
 	"hinsun-backend/internal/domain/services"
 	"hinsun-backend/internal/domain/usecases"
@@ -29,16 +31,25 @@ func NewGlobalAppService(experienceService services.ExperienceService) GlobalApp
 	}
 }
 
-func (application *globalAppService) FindExperience(ctx context.Context, id string) (*entities.ExperienceEntity, error) {
-	return application.experienceService.FindExperienceByID(ctx, id)
+func (g *globalAppService) FindExperience(ctx context.Context, id string) (*entities.ExperienceEntity, error) {
+	experience, err := g.experienceService.FindExperienceByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if experience == nil {
+		return nil, failure.NewNotFoundFailure("Experience with the given ID does not exist")
+	}
+
+	return experience, nil
 }
 
-func (application *globalAppService) FindExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error) {
-	return application.experienceService.FindAllExperiences(ctx)
+func (g *globalAppService) FindExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error) {
+	return g.experienceService.FindAllExperiences(ctx)
 }
 
-func (application *globalAppService) CreateExperience(ctx context.Context, params *usecases.CreateExperienceParams) (*entities.ExperienceEntity, error) {
-	return application.experienceService.CreateExperience(
+func (g *globalAppService) CreateExperience(ctx context.Context, params *usecases.CreateExperienceParams) (*entities.ExperienceEntity, error) {
+	return g.experienceService.CreateExperience(
 		ctx,
 		params.OrderIdx,
 		params.Position,
@@ -50,14 +61,44 @@ func (application *globalAppService) CreateExperience(ctx context.Context, param
 	)
 }
 
-func (application *globalAppService) UpdateExperience(ctx context.Context, id string, params *usecases.UpdateExperienceParams) (*entities.ExperienceEntity, error) {
-	return nil, nil
+func (g *globalAppService) UpdateExperience(ctx context.Context, id string, params *usecases.UpdateExperienceParams) (*entities.ExperienceEntity, error) {
+	return g.experienceService.UpdateExperience(
+		ctx,
+		id,
+		params.OrderIdx,
+		params.Position,
+		params.Company,
+		params.Location,
+		params.Technologies,
+		params.Responsibilities,
+		params.Period,
+	)
 }
 
-func (application *globalAppService) DeleteExperience(ctx context.Context, id string) (*int, error) {
-	return nil, nil
+func (g *globalAppService) DeleteExperience(ctx context.Context, id string) (*types.DeletedResult, error) {
+	rowsAffected, err := g.experienceService.DeleteExperience(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	deletedResult := &types.DeletedResult{
+		RowsAffected: rowsAffected,
+		Payload:      id,
+	}
+
+	return deletedResult, nil
 }
 
-func (application *globalAppService) DeleteMultipleExperiences(ctx context.Context, ids []string) (*int, error) {
-	return nil, nil
+func (g *globalAppService) DeleteMultipleExperiences(ctx context.Context, query *usecases.DeleteExperiencesQuery) (*types.DeletedResult, error) {
+	rowsAffected, err := g.experienceService.DeleteMultipleExperiences(ctx, query.IDs)
+	if err != nil {
+		return nil, err
+	}
+
+	deletedResult := &types.DeletedResult{
+		RowsAffected: rowsAffected,
+		Payload:      query.IDs,
+	}
+
+	return deletedResult, nil
 }

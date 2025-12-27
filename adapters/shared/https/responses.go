@@ -53,14 +53,21 @@ func nomalizeDataResponse(data any) any {
 }
 
 // Success sends a successful response with data
-func ResponseSuccess(w http.ResponseWriter, statusCode int, message string, data any) {
+func ResponseSuccess(w http.ResponseWriter, statusCode int, message string, data any, meta ...any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
+
+	// collect meta if provided
+	var metaData any
+	if len(meta) > 0 {
+		metaData = meta[0]
+	}
 
 	response := Response{
 		Code:    mapSuccessCode(statusCode),
 		Message: message,
-		Data:    nomalizeDataResponse(data),
+		Payload: nomalizeDataResponse(data),
+		Meta:    metaData,
 	}
 
 	json.NewEncoder(w).Encode(response)
@@ -137,6 +144,14 @@ func mapFailureCodeToHTTPStatus(code failure.FailureCode) int {
 
 func mapFailureToResponse(f *failure.Failure) (int, FailureResponse) {
 	statusCode := mapFailureCodeToHTTPStatus(f.Code)
+	if f.Cause == nil {
+		response := FailureResponse{
+			Code:    string(f.Code),
+			Message: f.Message,
+		}
+
+		return statusCode, response
+	}
 
 	response := FailureResponse{
 		Code:     string(f.Code),

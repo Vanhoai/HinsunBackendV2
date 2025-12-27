@@ -17,20 +17,26 @@ const (
 )
 
 type ExperienceEntity struct {
-	ID               uuid.UUID
-	OrderIdx         int8
-	Position         string
-	Company          string
-	Location         string
-	Technologies     []string
-	Responsibilities []string
-	Period           string
-	CreatedAt        int64
-	UpdatedAt        int64
-	DeletedAt        *int64
+	ID               uuid.UUID `json:"id"`
+	OrderIdx         int8      `json:"orderIdx"`
+	Position         string    `json:"position"`
+	Company          string    `json:"company"`
+	Location         string    `json:"location"`
+	Technologies     []string  `json:"technologies"`
+	Responsibilities []string  `json:"responsibilities"`
+	Period           string    `json:"period"`
+	Extra            any       `json:"extra,omitempty"`
+	CreatedAt        int64     `json:"createdAt"`
+	UpdatedAt        int64     `json:"updatedAt"`
+	DeletedAt        *int64    `json:"deletedAt,omitempty"`
 }
 
-func NewExperience(orderIdx int8, position string, company string, location string, technologies []string, responsibilities []string, period string) (*ExperienceEntity, error) {
+func NewExperience(
+	orderIdx int8,
+	position, company, location string,
+	technologies, responsibilities []string,
+	period string,
+) (*ExperienceEntity, error) {
 	if err := ValidatePosition(position); err != nil {
 		return nil, err
 	}
@@ -61,6 +67,7 @@ func NewExperience(orderIdx int8, position string, company string, location stri
 		Technologies:     technologies,
 		Responsibilities: responsibilities,
 		Period:           period,
+		Extra:            nil,
 		CreatedAt:        now.Unix(),
 		UpdatedAt:        now.Unix(),
 		DeletedAt:        nil,
@@ -113,6 +120,44 @@ func ValidateResponsibilities(responsibilities []string) error {
 			fmt.Sprintf("number of responsibilities exceeds maximum of %d", MaxResponsibilities),
 		)
 	}
+
+	return nil
+}
+
+func (e *ExperienceEntity) Update(
+	orderIdx int8,
+	position, company, location string,
+	technologies, responsibilities []string,
+	period string,
+) error {
+	if err := ValidatePosition(position); err != nil {
+		return err
+	}
+
+	if err := ValidateCompany(company); err != nil {
+		return err
+	}
+
+	if err := ValidateLocation(location); err != nil {
+		return err
+	}
+
+	if err := ValidateTechnologies(technologies); err != nil {
+		return err
+	}
+
+	if err := ValidateResponsibilities(responsibilities); err != nil {
+		return err
+	}
+
+	e.OrderIdx = orderIdx
+	e.Position = position
+	e.Company = company
+	e.Location = location
+	e.Technologies = technologies
+	e.Responsibilities = responsibilities
+	e.Period = period
+	e.UpdatedAt = time.Now().Unix()
 
 	return nil
 }

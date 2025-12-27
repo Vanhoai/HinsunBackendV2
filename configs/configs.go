@@ -93,17 +93,18 @@ func loadMetricsConfig() MetricsConfig {
 // loadLogConfig loads logging configuration
 func loadLogConfig() LogConfig {
 	return LogConfig{
-		SavePath:         getEnv("LOG_SAVE_PATH", "./tmp"),
-		FileName:         getEnv("LOG_FILE_NAME", "app"),
-		MaxSize:          getEnvAsInt("LOG_MAX_SIZE", 100),
-		MaxAge:           getEnvAsInt("LOG_MAX_AGE", 30),
-		LocalTime:        getEnvAsBool("LOG_LOCAL_TIME", true),
-		Compress:         getEnvAsBool("LOG_COMPRESS", true),
-		Level:            getEnv("LOG_LEVEL", "debug"),
-		EnableConsole:    getEnvAsBool("LOG_ENABLE_CONSOLE", true),
-		EnableColor:      getEnvAsBool("LOG_ENABLE_COLOR", true),
-		EnableCaller:     getEnvAsBool("LOG_ENABLE_CALLER", true),
-		EnableStacktrace: getEnvAsBool("LOG_ENABLE_STACKTRACE", false),
+		SavePath:          getEnv("LOG_SAVE_PATH", "./tmp"),
+		FileName:          getEnv("LOG_FILE_NAME", "app"),
+		MaxSize:           getEnvAsInt("LOG_MAX_SIZE", 100),
+		MaxAge:            getEnvAsInt("LOG_MAX_AGE", 30),
+		LocalTime:         getEnvAsBool("LOG_LOCAL_TIME", true),
+		Compress:          getEnvAsBool("LOG_COMPRESS", true),
+		Level:             getEnv("LOG_LEVEL", "debug"),
+		EnableWriteToFile: getEnvAsBool("LOG_ENABLE_WRITE_TO_FILE", false),
+		EnableConsole:     getEnvAsBool("LOG_ENABLE_CONSOLE", true),
+		EnableColor:       getEnvAsBool("LOG_ENABLE_COLOR", true),
+		EnableCaller:      getEnvAsBool("LOG_ENABLE_CALLER", true),
+		EnableStacktrace:  getEnvAsBool("LOG_ENABLE_STACKTRACE", false),
 	}
 }
 

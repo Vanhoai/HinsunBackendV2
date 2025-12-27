@@ -29,17 +29,18 @@ type MetricsConfig struct {
 }
 
 type LogConfig struct {
-	SavePath         string
-	FileName         string
-	MaxSize          int
-	MaxAge           int
-	LocalTime        bool
-	Compress         bool
-	Level            string
-	EnableConsole    bool
-	EnableColor      bool
-	EnableCaller     bool
-	EnableStacktrace bool
+	SavePath          string
+	FileName          string
+	MaxSize           int
+	MaxAge            int
+	LocalTime         bool
+	Compress          bool
+	Level             string
+	EnableWriteToFile bool
+	EnableConsole     bool
+	EnableColor       bool
+	EnableCaller      bool
+	EnableStacktrace  bool
 }
 
 type DatabaseConfig struct {

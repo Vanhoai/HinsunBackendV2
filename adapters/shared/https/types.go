@@ -3,7 +3,8 @@ package https
 type Response struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Payload any    `json:"data,omitempty"`
+	Meta    any    `json:"meta,omitempty"`
 }
 
 // ErrorDetail provides additional error information
