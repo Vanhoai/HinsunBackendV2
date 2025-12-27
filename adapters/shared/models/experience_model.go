@@ -1,7 +1,7 @@
 package models
 
 import (
-	"hinsun-backend/internal/domain/entities"
+	"hinsun-backend/internal/domain/experience"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -26,8 +26,8 @@ type ExperienceModel struct {
 func (ExperienceModel) TableName() string { return "experiences" }
 
 // =================================== CONVERTERS ===================================
-func (e *ExperienceModel) ToEntity() *entities.ExperienceEntity {
-	return &entities.ExperienceEntity{
+func (e *ExperienceModel) ToEntity() *experience.ExperienceEntity {
+	return &experience.ExperienceEntity{
 		ID:               e.ID,
 		OrderIdx:         e.OrderIdx,
 		Position:         e.Position,
@@ -43,7 +43,7 @@ func (e *ExperienceModel) ToEntity() *entities.ExperienceEntity {
 	}
 }
 
-func FromExperienceEntity(e *entities.ExperienceEntity) ExperienceModel {
+func FromExperienceEntity(e *experience.ExperienceEntity) ExperienceModel {
 	Extra := datatypes.JSON{}
 	if e.Extra != nil {
 		Extra = datatypes.JSON(e.Extra.(datatypes.JSON))

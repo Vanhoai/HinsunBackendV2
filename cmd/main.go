@@ -142,7 +142,7 @@ func main() {
 
 	app := fx.New(
 		// Core modules
-		di.DatabaseModule,
+		di.CoreModule,
 		di.RepositioryModule,
 		di.ServiceModule,
 		di.ApplicationModule,

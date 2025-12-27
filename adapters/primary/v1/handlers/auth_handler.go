@@ -1,47 +1,53 @@
 package handlers
 
 import (
+	"encoding/json"
 	"hinsun-backend/adapters/shared/https"
 	"hinsun-backend/internal/domain/applications"
+	"hinsun-backend/internal/domain/usecases"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
 
 type AuthHandler struct {
-	app applications.AuthAppService
+	app       applications.AuthAppService
+	validator *validator.Validate
 }
 
-func NewAuthHandler(app applications.AuthAppService) *AuthHandler {
+func NewAuthHandler(app applications.AuthAppService, validator *validator.Validate) *AuthHandler {
 	return &AuthHandler{
-		app: app,
+		app:       app,
+		validator: validator,
 	}
 }
 
-func (ah *AuthHandler) Handler() chi.Router {
+func (h *AuthHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/auth-email", authEmail)
-	r.Get("/oauth2", oauth2)
+	r.Post("/sign-in", h.authEmail)
 
 	return r
 }
 
-// authEmail godoc
-// @Summary      Sign in with email and password
-// @Description  Authenticate an account using email and password
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        credentials  body      AuthEmailParams  true  "Login credentials"
-// @Success      200  {object}  AuthResponse
-// @Failure      400  {object}  ErrorResponse
-// @Failure      401  {object}  ErrorResponse
-// @Router       /auth [post]
-func authEmail(w http.ResponseWriter, r *http.Request) {
-	https.ResponseSuccess(w, http.StatusOK, "Auth email endpoint", nil)
-}
+func (h *AuthHandler) authEmail(w http.ResponseWriter, r *http.Request) {
+	var params usecases.AuthEmailParams
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
 
-func oauth2(w http.ResponseWriter, r *http.Request) {
-	https.ResponseSuccess(w, http.StatusOK, "OAuth2 endpoint", nil)
+	if err := h.validator.Struct(params); err != nil {
+		https.ValidationFailed(w, err)
+		return
+	}
+
+	response, err := h.app.AuthWithEmail(r.Context(), &params)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Authentication successful", response)
 }

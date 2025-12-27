@@ -6,22 +6,28 @@ import (
 	v2 "hinsun-backend/adapters/primary/v2"
 	"hinsun-backend/internal/domain/applications"
 
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/fx"
 )
 
 var HandlerModule = fx.Module("v1_handlers",
 	fx.Provide(
+		ProvideValidator,
 		ProvideAuthHandler,
 		ProvideExperienceHandler,
 	),
 )
 
-func ProvideAuthHandler(app applications.AuthAppService) *handlers.AuthHandler {
-	return handlers.NewAuthHandler(app)
+func ProvideValidator() *validator.Validate {
+	return validator.New(validator.WithRequiredStructEnabled())
 }
 
-func ProvideExperienceHandler(app applications.GlobalAppService) *handlers.ExperienceHandler {
-	return handlers.NewExperienceHandler(app)
+func ProvideAuthHandler(app applications.AuthAppService, validator *validator.Validate) *handlers.AuthHandler {
+	return handlers.NewAuthHandler(app, validator)
+}
+
+func ProvideExperienceHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.ExperienceHandler {
+	return handlers.NewExperienceHandler(app, validator)
 }
 
 var RouterVersionModule = fx.Module("routers",

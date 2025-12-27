@@ -60,6 +60,7 @@ func loadConfig(env string) *Config {
 		Log:      loadLogConfig(),
 		Database: loadDatabaseConfig(),
 		Caching:  loadCachingConfig(),
+		Jwt:      loadJWTConfig(),
 	}
 }
 
@@ -136,6 +137,16 @@ func loadCachingConfig() CachingConfig {
 		PoolSize:     getEnvAsInt("REDIS_POOL_SIZE", 10),
 		IdleTimeout:  getEnvAsInt("REDIS_IDLE_TIMEOUT", 300),
 		MinIdleConns: getEnvAsInt("REDIS_MIN_IDLE_CONNS", 5),
+	}
+}
+
+// loadJWTConfig loads JWT configuration
+func loadJWTConfig() JwtConfig {
+	return JwtConfig{
+		Algorithm:          getEnv("JWT_ALGORITHM", "RS256"),
+		KeySize:            getEnvAsInt("JWT_KEYSIZE", 2048),
+		AccessTokenExpiry:  getEnvAsInt("JWT_ACCESS_TOKEN_EXPIRY", 900),
+		RefreshTokenExpiry: getEnvAsInt("JWT_REFRESH_TOKEN_EXPIRY", 604800),
 	}
 }
 

@@ -8,6 +8,7 @@ type Config struct {
 	Log      LogConfig
 	Database DatabaseConfig
 	Caching  CachingConfig
+	Jwt      JwtConfig
 }
 
 type AppConfig struct {
@@ -66,4 +67,11 @@ type CachingConfig struct {
 	PoolSize     int
 	IdleTimeout  int
 	MinIdleConns int
+}
+
+type JwtConfig struct {
+	Algorithm          string
+	KeySize            int
+	AccessTokenExpiry  int
+	RefreshTokenExpiry int
 }

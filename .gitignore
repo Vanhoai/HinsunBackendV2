@@ -132,4 +132,6 @@ yarn.lock
 # Air (Go live reload)
 .air.toml
 
-# Env
+# Private file
+firebase-adminsdk.json
+**.pem

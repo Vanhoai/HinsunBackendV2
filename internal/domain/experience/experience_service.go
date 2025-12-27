@@ -1,39 +1,37 @@
-package services
+package experience
 
 import (
 	"context"
 	"hinsun-backend/internal/core/failure"
-	"hinsun-backend/internal/domain/entities"
-	"hinsun-backend/internal/domain/repositories"
 )
 
 type ExperienceService interface {
-	FindAllExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error)
-	FindExperienceByID(ctx context.Context, id string) (*entities.ExperienceEntity, error)
-	CreateExperience(ctx context.Context, orderIdx int8, position, company, location string, technologies, responsibilities []string, period string) (*entities.ExperienceEntity, error)
-	UpdateExperience(ctx context.Context, id string, orderIdx int8, position, company, location string, technologies, responsibilities []string, period string) (*entities.ExperienceEntity, error)
+	FindAllExperiences(ctx context.Context) ([]*ExperienceEntity, error)
+	FindExperienceByID(ctx context.Context, id string) (*ExperienceEntity, error)
+	CreateExperience(ctx context.Context, orderIdx int8, position, company, location string, technologies, responsibilities []string, period string) (*ExperienceEntity, error)
+	UpdateExperience(ctx context.Context, id string, orderIdx int8, position, company, location string, technologies, responsibilities []string, period string) (*ExperienceEntity, error)
 	DeleteExperience(ctx context.Context, id string) (int, error)
 	DeleteMultipleExperiences(ctx context.Context, ids []string) (int, error)
 }
 
 type experienceService struct {
-	repository repositories.ExperienceRepository
+	repository ExperienceRepository
 }
 
 // NewExperienceService creates a new instance of ExperienceService
-func NewExperienceService(repository repositories.ExperienceRepository) ExperienceService {
+func NewExperienceService(repository ExperienceRepository) ExperienceService {
 	return &experienceService{
 		repository: repository,
 	}
 }
 
 // FindAllExperiences retrieves all experience entities from the repository
-func (s *experienceService) FindAllExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error) {
+func (s *experienceService) FindAllExperiences(ctx context.Context) ([]*ExperienceEntity, error) {
 	return s.repository.FindAll(ctx)
 }
 
 // FindExperienceByID retrieves a specific experience entity by its ID from the repository
-func (s *experienceService) FindExperienceByID(ctx context.Context, id string) (*entities.ExperienceEntity, error) {
+func (s *experienceService) FindExperienceByID(ctx context.Context, id string) (*ExperienceEntity, error) {
 	return s.repository.FindByID(ctx, id)
 }
 
@@ -47,7 +45,7 @@ func (s *experienceService) CreateExperience(
 	technologies []string,
 	responsibilities []string,
 	period string,
-) (*entities.ExperienceEntity, error) {
+) (*ExperienceEntity, error) {
 	// Validate orderIdx that don't conflict with existing experiences
 	existingExperience, err := s.repository.FindByOrderIdx(ctx, orderIdx)
 	if err != nil {
@@ -69,7 +67,7 @@ func (s *experienceService) CreateExperience(
 		return nil, failure.NewConflictFailure("Experience with the same company already exists")
 	}
 
-	newExperience, err := entities.NewExperience(
+	newExperience, err := NewExperience(
 		orderIdx,
 		position,
 		company,
@@ -103,7 +101,7 @@ func (s *experienceService) UpdateExperience(
 	technologies []string,
 	responsibilities []string,
 	period string,
-) (*entities.ExperienceEntity, error) {
+) (*ExperienceEntity, error) {
 	// 1. Retrieve existing experience
 	existingExperience, err := s.repository.FindByID(ctx, id)
 	if err != nil {

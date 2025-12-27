@@ -14,11 +14,13 @@ import (
 
 type ExperienceHandler struct {
 	globalAppService applications.GlobalAppService
+	validator        *validator.Validate
 }
 
-func NewExperienceHandler(globalAppService applications.GlobalAppService) *ExperienceHandler {
+func NewExperienceHandler(globalAppService applications.GlobalAppService, validator *validator.Validate) *ExperienceHandler {
 	return &ExperienceHandler{
 		globalAppService: globalAppService,
+		validator:        validator,
 	}
 }
 
@@ -66,8 +68,7 @@ func (h *ExperienceHandler) createExperience(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(params); err != nil {
+	if err := h.validator.Struct(params); err != nil {
 		https.ValidationFailed(w, err)
 		return
 	}
@@ -89,8 +90,7 @@ func (h *ExperienceHandler) updateExperience(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(params); err != nil {
+	if err := h.validator.Struct(params); err != nil {
 		https.ValidationFailed(w, err)
 		return
 	}

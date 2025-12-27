@@ -2,10 +2,10 @@ package applications
 
 import (
 	"context"
+	"hinsun-backend/internal/core/events"
 	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/core/types"
-	"hinsun-backend/internal/domain/entities"
-	"hinsun-backend/internal/domain/services"
+	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/usecases"
 )
 
@@ -21,17 +21,22 @@ type GlobalAppService interface {
 }
 
 type globalAppService struct {
-	experienceService services.ExperienceService
+	experienceService experience.ExperienceService
+	asyncEventBus     *events.AsyncEventBus
 }
 
 // NewGlobalAppService creates a new instance of GlobalAppService
-func NewGlobalAppService(experienceService services.ExperienceService) GlobalAppService {
+func NewGlobalAppService(
+	experienceService experience.ExperienceService,
+	asyncEventBus *events.AsyncEventBus,
+) GlobalAppService {
 	return &globalAppService{
 		experienceService: experienceService,
+		asyncEventBus:     asyncEventBus,
 	}
 }
 
-func (g *globalAppService) FindExperience(ctx context.Context, id string) (*entities.ExperienceEntity, error) {
+func (g *globalAppService) FindExperience(ctx context.Context, id string) (*experience.ExperienceEntity, error) {
 	experience, err := g.experienceService.FindExperienceByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -44,11 +49,11 @@ func (g *globalAppService) FindExperience(ctx context.Context, id string) (*enti
 	return experience, nil
 }
 
-func (g *globalAppService) FindExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error) {
+func (g *globalAppService) FindExperiences(ctx context.Context) ([]*experience.ExperienceEntity, error) {
 	return g.experienceService.FindAllExperiences(ctx)
 }
 
-func (g *globalAppService) CreateExperience(ctx context.Context, params *usecases.CreateExperienceParams) (*entities.ExperienceEntity, error) {
+func (g *globalAppService) CreateExperience(ctx context.Context, params *usecases.CreateExperienceParams) (*experience.ExperienceEntity, error) {
 	return g.experienceService.CreateExperience(
 		ctx,
 		params.OrderIdx,
@@ -61,7 +66,7 @@ func (g *globalAppService) CreateExperience(ctx context.Context, params *usecase
 	)
 }
 
-func (g *globalAppService) UpdateExperience(ctx context.Context, id string, params *usecases.UpdateExperienceParams) (*entities.ExperienceEntity, error) {
+func (g *globalAppService) UpdateExperience(ctx context.Context, id string, params *usecases.UpdateExperienceParams) (*experience.ExperienceEntity, error) {
 	return g.experienceService.UpdateExperience(
 		ctx,
 		id,

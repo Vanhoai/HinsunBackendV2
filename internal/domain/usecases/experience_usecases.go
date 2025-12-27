@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 	"hinsun-backend/internal/core/types"
-	"hinsun-backend/internal/domain/entities"
+	"hinsun-backend/internal/domain/experience"
 )
 
 type CreateExperienceParams struct {
@@ -31,10 +31,10 @@ type DeleteExperiencesQuery struct {
 }
 
 type ManageExperienceUseCase interface {
-	FindExperience(ctx context.Context, id string) (*entities.ExperienceEntity, error)
-	FindExperiences(ctx context.Context) ([]*entities.ExperienceEntity, error)
-	CreateExperience(ctx context.Context, params *CreateExperienceParams) (*entities.ExperienceEntity, error)
-	UpdateExperience(ctx context.Context, id string, params *UpdateExperienceParams) (*entities.ExperienceEntity, error)
+	FindExperience(ctx context.Context, id string) (*experience.ExperienceEntity, error)
+	FindExperiences(ctx context.Context) ([]*experience.ExperienceEntity, error)
+	CreateExperience(ctx context.Context, params *CreateExperienceParams) (*experience.ExperienceEntity, error)
+	UpdateExperience(ctx context.Context, id string, params *UpdateExperienceParams) (*experience.ExperienceEntity, error)
 	DeleteExperience(ctx context.Context, id string) (*types.DeletedResult, error)
 	DeleteMultipleExperiences(ctx context.Context, query *DeleteExperiencesQuery) (*types.DeletedResult, error)
 }

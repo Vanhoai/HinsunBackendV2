@@ -10,7 +10,6 @@ func NewFailure(code FailureCode, message string) *Failure {
 	}
 }
 
-// Constructors for common failures
 func NewNotFoundFailure(message string) *Failure {
 	return NewFailure(NotFoundFailure, message)
 }
@@ -25,4 +24,8 @@ func NewDatabaseFailure(message string) *Failure {
 
 func NewConflictFailure(message string) *Failure {
 	return NewFailure(ConflictFailure, message)
+}
+
+func NewInternalFailure(message string, cause error) *Failure {
+	return NewFailure(InternalFailure, message).WithCause(cause)
 }

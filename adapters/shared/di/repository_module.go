@@ -1,8 +1,10 @@
 package di
 
 import (
-	adapterRepositories "hinsun-backend/adapters/secondary/repositories"
-	domainRepositories "hinsun-backend/internal/domain/repositories"
+	"hinsun-backend/adapters/secondary/repositories"
+	"hinsun-backend/internal/domain/account"
+	"hinsun-backend/internal/domain/experience"
+	"hinsun-backend/internal/domain/notification"
 
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -11,9 +13,19 @@ import (
 var RepositioryModule = fx.Module("repositories",
 	fx.Provide(
 		ProvideExperienceRepository,
+		ProvideNotificationRepository,
+		PriovideAccountRepository,
 	),
 )
 
-func ProvideExperienceRepository(db *gorm.DB) domainRepositories.ExperienceRepository {
-	return adapterRepositories.NewExperienceRepostory(db)
+func ProvideExperienceRepository(db *gorm.DB) experience.ExperienceRepository {
+	return repositories.NewExperienceRepostory(db)
+}
+
+func ProvideNotificationRepository(db *gorm.DB) notification.NotificationRepository {
+	return repositories.NewNotificationRepository(db)
+}
+
+func PriovideAccountRepository(db *gorm.DB) account.AccountRepository {
+	return repositories.NewAccountRepository(db)
 }
