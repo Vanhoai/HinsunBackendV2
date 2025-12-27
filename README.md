@@ -132,23 +132,23 @@ This feature is coming soon 🫣 !!
 
 1. **Domain Layer**: Contains business logic and entities
 
-Domain is layer most important in this architecture, it contains all business logic and rules. Following DDD principles, the domain layer is organized into aggregates, entities, value objects, domain services, and application services.
+   Domain is layer most important in this architecture, it contains all business logic and rules. Following DDD principles, the domain layer is organized into aggregates, entities, value objects, domain services, and application services.
 
-In this project, the domain layer is structured as follows:
+   In this project, the domain layer is structured as follows:
 
-- **Entities**: Represent core business objects with unique identities
-- **Value Objects**: Immutable objects representing descriptive aspects of the domain
-- **Repositories**: Interfaces for data access and persistence
-- **Domain Services**: Encapsulate domain logic that doesn't fit within entities or value objects
-- **Application Services**: Coordinate use cases and interact with domain services
+   - **Entities**: Represent core business objects with unique identities
+   - **Value Objects**: Immutable objects representing descriptive aspects of the domain
+   - **Repositories**: Interfaces for data access and persistence
+   - **Domain Services**: Encapsulate domain logic that doesn't fit within entities or value objects
+   - **Application Services**: Coordinate use cases and interact with domain services
 
-💡 Note: normally, application services should receive commands/queries with DTOs format and return DTOs as well. However, in this project, for simplicity, I let application services receive and return domain entities directly.
+   💡 Note: normally, application services should receive commands/queries with DTOs format and return DTOs as well. However, in this project, for simplicity, I let application services receive and return domain entities directly.
 
 2. **Adapter Layer**: Implements interfaces for external systems
 
-The adapter layer is responsible for communication between the domain layer and external systems such as databases, web frameworks, and third-party services. It contains both primary adapters (for incoming requests) and secondary adapters (for outgoing requests).
+   The adapter layer is responsible for communication between the domain layer and external systems such as databases, web frameworks, and third-party services. It contains both primary adapters (for incoming requests) and secondary adapters (for outgoing requests).
 
-Note: In repositories implementations, I use models (data models) to interact with the database instead of using domain entities directly. This approach helps to decouple the domain layer from the persistence layer and allows for easier mapping between domain entities and database records.
+   Note: In repositories implementations, I use models (data models) to interact with the database instead of using domain entities directly. This approach helps to decouple the domain layer from the persistence layer and allows for easier mapping between domain entities and database records.
 
 💪🏻 Bonus: I defined core modules in the internal/core directory, which can be reused across different projects. At here, I implemented some essential modules such as event bus, logging, error handling, and common types.
 
@@ -164,7 +164,7 @@ This is the first time, I have used DDD and Hexagonal Architecture, so if you ha
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENCE file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ## 👤 Author
 
