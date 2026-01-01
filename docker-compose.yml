@@ -1,0 +1,15 @@
+services:
+  backend:
+    image: vanhoaiadv/hinsun-backend:1.0.0
+    container_name: hinsun-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - hinsun-network
+
+networks:
+  hinsun-network:
+    driver: bridge

@@ -28,7 +28,7 @@ func mapSuccessCode(statusCode int) string {
 	}
 }
 
-func nomalizeDataResponse(data any) any {
+func normalizeDataResponse(data any) any {
 	if data == nil {
 		return nil
 	}
@@ -66,7 +66,7 @@ func ResponseSuccess(w http.ResponseWriter, statusCode int, message string, data
 	response := Response{
 		Code:    mapSuccessCode(statusCode),
 		Message: message,
-		Payload: nomalizeDataResponse(data),
+		Payload: normalizeDataResponse(data),
 		Meta:    metaData,
 	}
 

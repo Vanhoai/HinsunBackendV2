@@ -13,4 +13,5 @@ type AccountRepository interface {
 	DeleteMany(ctx context.Context, ids []string) (int, error)
 	FindByID(ctx context.Context, id string) (*AccountEntity, error)
 	FindAll(ctx context.Context) ([]*AccountEntity, error)
+	SearchByNameAndEmail(ctx context.Context, name, email string) ([]*AccountEntity, error)
 }

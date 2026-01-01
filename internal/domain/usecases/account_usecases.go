@@ -38,6 +38,7 @@ type SearchAccountsQuery struct {
 }
 
 type ManageAccountUseCase interface {
+	SearchAccounts(ctx context.Context, query *SearchAccountsQuery) ([]*account.AccountEntity, error)
 	FindAccountByEmail(ctx context.Context, email string) (*account.AccountEntity, error)
 	FindAllAccounts(ctx context.Context) ([]*account.AccountEntity, error)
 	CreateNewAccount(ctx context.Context, params *CreateAccountParams) (*account.AccountEntity, error)

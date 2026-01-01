@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"hinsun-backend/adapters/shared/https"
+	"hinsun-backend/adapters/shared/middlewares"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -13,14 +14,23 @@ import (
 )
 
 type AccountHandler struct {
-	app       applications.AccountAppService
-	validator *validator.Validate
+	app            applications.AccountAppService
+	validator      *validator.Validate
+	authMiddleware *middlewares.AuthMiddleware
+	roleMiddleware *middlewares.RoleMiddleware
 }
 
-func NewAccountHandler(app applications.AccountAppService, validator *validator.Validate) *AccountHandler {
+func NewAccountHandler(
+	app applications.AccountAppService,
+	validator *validator.Validate,
+	authMiddleware *middlewares.AuthMiddleware,
+	roleMiddleware *middlewares.RoleMiddleware,
+) *AccountHandler {
 	return &AccountHandler{
-		app:       app,
-		validator: validator,
+		app:            app,
+		validator:      validator,
+		authMiddleware: authMiddleware,
+		roleMiddleware: roleMiddleware,
 	}
 }
 
@@ -28,15 +38,16 @@ func (h *AccountHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", h.findAllAccounts)
-	r.Post("/", h.createAccount)
-	r.Delete("/", h.deleteMultipleAccounts)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Post("/", h.createAccount)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireGod).Delete("/", h.deleteMultipleAccounts)
 
 	r.Get("/search", h.searchAccounts)
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.findAccountByID)
-		r.Put("/", h.updateAccount)
-		r.Delete("/", h.deleteAccount)
+
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Put("/", h.updateAccount)
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireGod).Delete("/", h.deleteAccount)
 	})
 
 	return r
@@ -53,8 +64,19 @@ func (h *AccountHandler) findAllAccounts(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AccountHandler) searchAccounts(w http.ResponseWriter, r *http.Request) {
+	var query usecases.SearchAccountsQuery
+	if err := https.BindQuery(r, &query); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
 
-	https.ResponseSuccess(w, http.StatusOK, "Accounts retrieved successfully", nil)
+	accounts, err := h.app.SearchAccounts(r.Context(), &query)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Accounts retrieved successfully", accounts)
 }
 
 func (h *AccountHandler) createAccount(w http.ResponseWriter, r *http.Request) {

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"hinsun-backend/adapters/shared/https"
+	"hinsun-backend/adapters/shared/middlewares"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -12,14 +13,23 @@ import (
 )
 
 type AuthHandler struct {
-	app       applications.AuthAppService
-	validator *validator.Validate
+	app            applications.AuthAppService
+	validator      *validator.Validate
+	authMiddleware *middlewares.AuthMiddleware
+	roleMiddleware *middlewares.RoleMiddleware
 }
 
-func NewAuthHandler(app applications.AuthAppService, validator *validator.Validate) *AuthHandler {
+func NewAuthHandler(
+	app applications.AuthAppService,
+	validator *validator.Validate,
+	authMiddleware *middlewares.AuthMiddleware,
+	roleMiddleware *middlewares.RoleMiddleware,
+) *AuthHandler {
 	return &AuthHandler{
-		app:       app,
-		validator: validator,
+		app:            app,
+		validator:      validator,
+		authMiddleware: authMiddleware,
+		roleMiddleware: roleMiddleware,
 	}
 }
 

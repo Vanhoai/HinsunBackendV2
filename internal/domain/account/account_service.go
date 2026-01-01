@@ -8,6 +8,7 @@ import (
 )
 
 type AccountService interface {
+	SearchAccountsByNameAndEmail(ctx context.Context, name, email string) ([]*AccountEntity, error)
 	FindAccountByEmail(ctx context.Context, email *values.Email) (*AccountEntity, error)
 	CreateNewAccount(ctx context.Context, name string, email *values.Email, hashedPassword, avatar, bio string, role values.AccountRole) (*AccountEntity, error)
 	FindAllAccounts(ctx context.Context) ([]*AccountEntity, error)
@@ -28,8 +29,8 @@ func NewAccountService(repository AccountRepository) AccountService {
 	}
 }
 
-func (s *accountService) SearchAccounts(ctx context.Context) ([]*AccountEntity, error) {
-	return nil, nil
+func (s *accountService) SearchAccountsByNameAndEmail(ctx context.Context, name, email string) ([]*AccountEntity, error) {
+	return s.repository.SearchByNameAndEmail(ctx, name, email)
 }
 
 // FindAccountByEmail retrieves an account entity by its email.

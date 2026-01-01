@@ -3,15 +3,9 @@ package https
 type Response struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
-	Payload any    `json:"data,omitempty"`
+	Payload any    `json:"payload,omitempty"`
 	Meta    any    `json:"meta,omitempty"`
 }
-
-// ErrorDetail provides additional error information
-// type ErrorDetail struct {
-// 	Field   string `json:"field,omitempty"`
-// 	Message string `json:"message"`
-// }
 
 // FailureResponse extends APIResponse with error details
 type FailureResponse struct {

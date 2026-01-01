@@ -21,7 +21,7 @@ type TokenPair struct {
 }
 
 type JwtService interface {
-	GenerateTokenPair(accountID, email string) (*TokenPair, error)
+	GenerateTokenPair(accountID, email string, role int) (*TokenPair, error)
 	ValidateAccessToken(tokenString string) (*Claims, error)
 	ValidateRefreshToken(tokenString string) (*Claims, error)
 }
@@ -63,18 +63,20 @@ func (j *jwtService) retrieveSigningMethod() jwtv4.SigningMethod {
 	}
 }
 
-func (j *jwtService) GenerateTokenPair(accountID, email string) (*TokenPair, error) {
+func (j *jwtService) GenerateTokenPair(accountID, email string, role int) (*TokenPair, error) {
 	jti := uuid.New().String()
 	now := time.Now()
 
 	accessExpiresAt := now.Add(j.accessTokenExpiry)
 	refreshExpiresAt := now.Add(j.refreshTokenExpiry)
+
 	signingMethod := j.retrieveSigningMethod()
 
 	accessClaims := Claims{
 		AccountID: accountID,
 		Email:     email,
 		JTI:       jti,
+		Role:      fmt.Sprintf("%d", role),
 		RegisteredClaims: jwtv4.RegisteredClaims{
 			ExpiresAt: jwtv4.NewNumericDate(accessExpiresAt),
 			IssuedAt:  jwtv4.NewNumericDate(now),
@@ -121,7 +123,15 @@ func (j *jwtService) ValidateRefreshToken(token string) (*Claims, error) {
 }
 
 func (j *jwtService) validateToken(token string, verificationKey any) (*Claims, error) {
+	fmt.Println("Token: ", token)
+
 	parsedToken, err := jwtv4.ParseWithClaims(token, &Claims{}, func(t *jwtv4.Token) (any, error) {
+		// Validate signing method
+		expectedMethod := j.retrieveSigningMethod()
+		if t.Method.Alg() != expectedMethod.Alg() {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+
 		return verificationKey, nil
 	})
 

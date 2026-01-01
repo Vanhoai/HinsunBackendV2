@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"hinsun-backend/adapters/shared/https"
+	"hinsun-backend/adapters/shared/middlewares"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -13,14 +14,23 @@ import (
 )
 
 type BlogHandler struct {
-	app       applications.BlogAppSevice
-	validator *validator.Validate
+	app            applications.BlogAppService
+	validator      *validator.Validate
+	authMiddleware *middlewares.AuthMiddleware
+	roleMiddleware *middlewares.RoleMiddleware
 }
 
-func NewBlogHandler(app applications.BlogAppSevice, validator *validator.Validate) *BlogHandler {
+func NewBlogHandler(
+	app applications.BlogAppService,
+	validator *validator.Validate,
+	authMiddleware *middlewares.AuthMiddleware,
+	roleMiddleware *middlewares.RoleMiddleware,
+) *BlogHandler {
 	return &BlogHandler{
-		app:       app,
-		validator: validator,
+		app:            app,
+		validator:      validator,
+		authMiddleware: authMiddleware,
+		roleMiddleware: roleMiddleware,
 	}
 }
 
@@ -28,13 +38,13 @@ func (h *BlogHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", h.findBlogs)
-	r.Post("/", h.createBlog)
-	r.Delete("/", h.deleteMultipleBlogs)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Post("/", h.createBlog)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteMultipleBlogs)
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.findBlog)
-		r.Delete("/", h.deleteBlog)
-		r.Put("/", h.updateBlog)
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteBlog)
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Put("/", h.updateBlog)
 	})
 
 	return r

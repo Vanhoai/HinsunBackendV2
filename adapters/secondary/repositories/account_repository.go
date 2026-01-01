@@ -111,3 +111,22 @@ func (r *accountRepository) FindAll(ctx context.Context) ([]*account.AccountEnti
 
 	return accountEntities, nil
 }
+
+func (r *accountRepository) SearchByNameAndEmail(ctx context.Context, name, email string) ([]*account.AccountEntity, error) {
+	var accountModels []models.AccountModel
+	accountModels, err := gorm.G[models.AccountModel](r.db).Where("email LIKE ?", "%"+email+"%").Where("name LIKE ?", "%"+name+"%").Find(ctx)
+	if err != nil {
+		return nil, failure.NewDatabaseFailure("Failed to search accounts in database").WithCause(err)
+	}
+
+	var accountEntities []*account.AccountEntity
+	for _, accountModel := range accountModels {
+		entity, err := accountModel.ToEntity()
+		if err != nil {
+			return nil, err
+		}
+		accountEntities = append(accountEntities, entity)
+	}
+
+	return accountEntities, nil
+}

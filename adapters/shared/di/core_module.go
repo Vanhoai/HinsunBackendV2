@@ -58,9 +58,12 @@ func ProvideKeyManager() *jwt.KeyManager {
 
 func ProvideJwtService(keyManager *jwt.KeyManager) jwt.JwtService {
 	jwtConfig := configs.GlobalConfig.Jwt
+	accessTokenExpiry := time.Duration(jwtConfig.AccessTokenExpiry) * time.Second
+	refreshTokenExpiry := time.Duration(jwtConfig.RefreshTokenExpiry) * time.Second
+
 	return jwt.NewJwtService(
 		keyManager,
-		time.Duration(jwtConfig.AccessTokenExpiry),
-		time.Duration(jwtConfig.RefreshTokenExpiry),
+		accessTokenExpiry,
+		refreshTokenExpiry,
 	)
 }

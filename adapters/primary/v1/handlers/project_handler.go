@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"hinsun-backend/adapters/shared/https"
+	"hinsun-backend/adapters/shared/middlewares"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -13,14 +14,23 @@ import (
 )
 
 type ProjectHandler struct {
-	globalAppService applications.GlobalAppService
-	validator        *validator.Validate
+	app            applications.GlobalAppService
+	validator      *validator.Validate
+	authMiddleware *middlewares.AuthMiddleware
+	roleMiddleware *middlewares.RoleMiddleware
 }
 
-func NewProjectHandler(globalAppService applications.GlobalAppService, validator *validator.Validate) *ProjectHandler {
+func NewProjectHandler(
+	app applications.GlobalAppService,
+	validator *validator.Validate,
+	authMiddleware *middlewares.AuthMiddleware,
+	roleMiddleware *middlewares.RoleMiddleware,
+) *ProjectHandler {
 	return &ProjectHandler{
-		globalAppService: globalAppService,
-		validator:        validator,
+		app:            app,
+		validator:      validator,
+		authMiddleware: authMiddleware,
+		roleMiddleware: roleMiddleware,
 	}
 }
 
@@ -28,20 +38,21 @@ func (h *ProjectHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", h.findAllProjects)
-	r.Post("/", h.createProject)
-	r.Delete("/", h.deleteMultipleProjects)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Post("/", h.createProject)
+	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteMultipleProjects)
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.findProjectByID)
-		r.Put("/", h.updateProject)
-		r.Delete("/", h.deleteProject)
+
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Put("/", h.updateProject)
+		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteProject)
 	})
 
 	return r
 }
 
 func (h *ProjectHandler) findAllProjects(w http.ResponseWriter, r *http.Request) {
-	projects, err := h.globalAppService.FindProjects(r.Context())
+	projects, err := h.app.FindProjects(r.Context())
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -52,7 +63,7 @@ func (h *ProjectHandler) findAllProjects(w http.ResponseWriter, r *http.Request)
 
 func (h *ProjectHandler) findProjectByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	project, err := h.globalAppService.FindProject(r.Context(), id)
+	project, err := h.app.FindProject(r.Context(), id)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -73,7 +84,7 @@ func (h *ProjectHandler) createProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	project, err := h.globalAppService.CreateProject(r.Context(), &params)
+	project, err := h.app.CreateProject(r.Context(), &params)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -95,7 +106,7 @@ func (h *ProjectHandler) updateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedProject, err := h.globalAppService.UpdateProject(r.Context(), id, &params)
+	updatedProject, err := h.app.UpdateProject(r.Context(), id, &params)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -106,7 +117,7 @@ func (h *ProjectHandler) updateProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) deleteProject(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	deletedResult, err := h.globalAppService.DeleteProject(r.Context(), id)
+	deletedResult, err := h.app.DeleteProject(r.Context(), id)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -128,7 +139,7 @@ func (h *ProjectHandler) deleteMultipleProjects(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	deletedResult, err := h.globalAppService.DeleteMultipleProjects(r.Context(), &query)
+	deletedResult, err := h.app.DeleteMultipleProjects(r.Context(), &query)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return

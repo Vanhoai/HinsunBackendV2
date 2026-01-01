@@ -9,7 +9,7 @@ import (
 type AuthService interface {
 	HashPassword(password string) (string, error)
 	VerifyPassword(password, hash string) error
-	GenerateTokenPair(accountID, email string) (*jwt.TokenPair, error)
+	GenerateTokenPair(accountID, email string, role int) (*jwt.TokenPair, error)
 }
 
 type authService struct {
@@ -49,8 +49,8 @@ func (s *authService) VerifyPassword(password, hash string) error {
 }
 
 // GenerateTokenPair generates a new JWT token pair for the given account ID and email.
-func (s *authService) GenerateTokenPair(accountID, email string) (*jwt.TokenPair, error) {
-	tokenPair, err := s.jwtService.GenerateTokenPair(accountID, email)
+func (s *authService) GenerateTokenPair(accountID, email string, role int) (*jwt.TokenPair, error) {
+	tokenPair, err := s.jwtService.GenerateTokenPair(accountID, email, role)
 	if err != nil {
 		return nil, failure.NewInternalFailure("failed to generate token pair", err)
 	}

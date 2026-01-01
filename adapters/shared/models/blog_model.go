@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/values"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -14,10 +15,10 @@ type BlogModel struct {
 	AuthorID                 uuid.UUID      `gorm:"type:uuid;not null;index"`
 	Languages                pq.StringArray `gorm:"type:text[];not null"`
 	Categories               pq.StringArray `gorm:"type:text[];not null"`
-	Name                     datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> name
-	Description              datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> description
+	Names                    datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> name
+	Descriptions             datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> description
 	IsPublished              bool           `gorm:"type:boolean;default:false;not null"`
-	Markdown                 datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> markdown
+	Markdowns                datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> markdown
 	Favorites                int64          `gorm:"type:bigint;default:0;not null"`
 	Views                    int64          `gorm:"type:bigint;default:0;not null"`
 	EstimatedReadTimeSeconds int64          `gorm:"type:bigint;not null"`
@@ -32,30 +33,36 @@ type BlogModel struct {
 func (BlogModel) TableName() string { return "blogs" }
 
 func (b *BlogModel) ToEntity() *blog.BlogEntity {
-	// Convert JSON to MultiLangText maps
-	name := make(blog.MultiLangText)
-	description := make(blog.MultiLangText)
-	markdown := make(blog.MultiLangText)
+	names := make(values.MultiLangText)
+	descriptions := make(values.MultiLangText)
+	markdowns := make(values.MultiLangText)
 
-	if len(b.Name) > 0 {
-		json.Unmarshal(b.Name, &name)
+	if len(b.Names) > 0 {
+		json.Unmarshal(b.Names, &names)
 	}
-	if len(b.Description) > 0 {
-		json.Unmarshal(b.Description, &description)
+
+	if len(b.Descriptions) > 0 {
+		json.Unmarshal(b.Descriptions, &descriptions)
 	}
-	if len(b.Markdown) > 0 {
-		json.Unmarshal(b.Markdown, &markdown)
+
+	if len(b.Markdowns) > 0 {
+		json.Unmarshal(b.Markdowns, &markdowns)
+	}
+
+	languages, err := values.ConvertStringArrayToMarkdownLanguageCodes(b.Languages)
+	if err != nil {
+		return nil
 	}
 
 	return &blog.BlogEntity{
 		ID:                       b.ID,
 		AuthorID:                 b.AuthorID,
-		Languages:                b.Languages,
+		Languages:                languages,
 		Categories:               b.Categories,
-		Name:                     name,
-		Description:              description,
+		Names:                    names,
+		Descriptions:             descriptions,
 		IsPublished:              b.IsPublished,
-		Markdown:                 markdown,
+		Markdowns:                markdowns,
 		Favorites:                b.Favorites,
 		Views:                    b.Views,
 		EstimatedReadTimeSeconds: b.EstimatedReadTimeSeconds,
@@ -66,20 +73,19 @@ func (b *BlogModel) ToEntity() *blog.BlogEntity {
 }
 
 func FromBlogEntity(b *blog.BlogEntity) BlogModel {
-	// Convert MultiLangText maps to JSON
-	nameJSON, _ := json.Marshal(b.Name)
-	descJSON, _ := json.Marshal(b.Description)
-	markdownJSON, _ := json.Marshal(b.Markdown)
+	namesJSON, _ := json.Marshal(b.Names)
+	descsJSON, _ := json.Marshal(b.Descriptions)
+	markdownsJSON, _ := json.Marshal(b.Markdowns)
 
 	return BlogModel{
 		ID:                       b.ID,
 		AuthorID:                 b.AuthorID,
-		Languages:                b.Languages,
+		Languages:                values.ConvertMarkdownLanguageCodesToStringArray(b.Languages),
 		Categories:               b.Categories,
-		Name:                     nameJSON,
-		Description:              descJSON,
+		Names:                    namesJSON,
+		Descriptions:             descsJSON,
 		IsPublished:              b.IsPublished,
-		Markdown:                 markdownJSON,
+		Markdowns:                markdownsJSON,
 		Favorites:                b.Favorites,
 		Views:                    b.Views,
 		EstimatedReadTimeSeconds: b.EstimatedReadTimeSeconds,

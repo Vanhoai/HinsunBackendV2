@@ -29,3 +29,7 @@ func NewConflictFailure(message string) *Failure {
 func NewInternalFailure(message string, cause error) *Failure {
 	return NewFailure(InternalFailure, message).WithCause(cause)
 }
+
+func NewAuthenticationFailure(message string) *Failure {
+	return NewFailure(UnauthorizedFailure, message)
+}

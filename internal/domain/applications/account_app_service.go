@@ -28,6 +28,10 @@ func NewAccountAppService(
 	}
 }
 
+func (s *accountAppService) SearchAccounts(ctx context.Context, query *usecases.SearchAccountsQuery) ([]*account.AccountEntity, error) {
+	return s.accountService.SearchAccountsByNameAndEmail(ctx, query.Name, query.Email)
+}
+
 func (s *accountAppService) FindAccountByEmail(ctx context.Context, email string) (*account.AccountEntity, error) {
 	emailValidated, err := values.NewEmail(email)
 	if err != nil {

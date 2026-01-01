@@ -4,29 +4,31 @@ import (
 	"context"
 	"hinsun-backend/internal/core/types"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/values"
 
 	"github.com/google/uuid"
 )
 
 type CreateBlogParams struct {
-	AuthorID                 uuid.UUID          `json:"authorId" validate:"required"`
-	Name                     blog.MultiLangText `json:"name" validate:"required"`
-	Description              blog.MultiLangText `json:"description" validate:"required"`
-	Categories               []string           `json:"categories" validate:"required,min=1,max=5,dive,min=2,max=50"`
-	Languages                []string           `json:"languages" validate:"required,min=1,max=10,dive,min=2,max=3"`
-	Markdown                 blog.MultiLangText `json:"markdown" validate:"required"`
-	IsPublished              bool               `json:"isPublished"`
-	EstimatedReadTimeSeconds int64              `json:"estimatedReadTimeSeconds" validate:"required,min=0"`
+	AuthorID                 uuid.UUID            `json:"authorId" validate:"required"`
+	Names                    values.MultiLangText `json:"names"`
+	Descriptions             values.MultiLangText `json:"descriptions"`
+	Categories               []string             `json:"categories" validate:"required,min=1,max=5,dive,min=2,max=50"`
+	Languages                []string             `json:"languages" validate:"required,min=1,max=10,dive,min=2,max=3"`
+	Markdowns                values.MultiLangText `json:"markdowns"`
+	IsPublished              bool                 `json:"isPublished"`
+	EstimatedReadTimeSeconds int64                `json:"estimatedReadTimeSeconds" validate:"min=0"`
 }
 
 type UpdateBlogParams struct {
-	Languages                []string           `json:"languages" validate:"required,min=1,max=10,dive,min=2,max=3"`
-	Categories               []string           `json:"categories" validate:"required,min=1,max=5,dive,min=2,max=50"`
-	Name                     blog.MultiLangText `json:"name" validate:"required"`
-	Description              blog.MultiLangText `json:"description" validate:"required"`
-	Markdown                 blog.MultiLangText `json:"markdown" validate:"required"`
-	IsPublished              bool               `json:"isPublished"`
-	EstimatedReadTimeSeconds int64              `json:"estimatedReadTimeSeconds" validate:"required,min=0"`
+	AuthorID                 uuid.UUID            `json:"authorId" validate:"required"`
+	Names                    values.MultiLangText `json:"names"`
+	Descriptions             values.MultiLangText `json:"descriptions"`
+	Categories               []string             `json:"categories" validate:"required,min=1,max=5,dive,min=2,max=50"`
+	Languages                []string             `json:"languages" validate:"required,min=1,max=10,dive,min=2,max=3"`
+	Markdowns                values.MultiLangText `json:"markdowns"`
+	IsPublished              bool                 `json:"isPublished"`
+	EstimatedReadTimeSeconds int64                `json:"estimatedReadTimeSeconds" validate:"min=0"`
 }
 
 type DeleteBlogsQuery struct {

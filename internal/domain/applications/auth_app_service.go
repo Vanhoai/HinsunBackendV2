@@ -34,7 +34,7 @@ func (a *authAppService) AuthWithEmail(ctx context.Context, params *usecases.Aut
 	}
 
 	// At here, accountEntity must be not nil
-	tokenPair, err := a.authService.GenerateTokenPair(accountEntity.ID.String(), accountEntity.Email.Value())
+	tokenPair, err := a.authService.GenerateTokenPair(accountEntity.ID.String(), accountEntity.Email.Value(), int(accountEntity.Role))
 	if err != nil {
 		return nil, err
 	}

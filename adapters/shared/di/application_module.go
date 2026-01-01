@@ -40,8 +40,8 @@ func ProvideGlobalAppService(
 	return applications.NewGlobalAppService(experienceService, projectService, asyncEventBus)
 }
 
-func ProvideBlogAppService(blogService blog.BlogService) applications.BlogAppSevice {
-	return applications.NewBlogAppService(blogService)
+func ProvideBlogAppService(blogService blog.BlogService, accountService account.AccountService) applications.BlogAppService {
+	return applications.NewBlogAppService(blogService, accountService)
 }
 
 func ProvideAccountAppService(accountService account.AccountService, authService auth.AuthService) applications.AccountAppService {

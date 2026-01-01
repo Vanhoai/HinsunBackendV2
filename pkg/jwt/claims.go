@@ -8,5 +8,6 @@ type Claims struct {
 	AccountID string `json:"accountId"`
 	Email     string `json:"email"`
 	JTI       string `json:"jti"`
+	Role      string `json:"role"`
 	jwtV4.RegisteredClaims
 }
