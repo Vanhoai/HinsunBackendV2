@@ -82,3 +82,49 @@ func ValidateBlogCategories(categories []string) error {
 
 	return nil
 }
+
+func (b *BlogEntity) Update(
+	categories []string,
+	name, description, markdown string,
+	isPublished bool,
+	estimatedReadTimeSeconds int64,
+) error {
+	if err := ValidateBlogName(name); err != nil {
+		return err
+	}
+
+	if err := ValidateBlogDescription(description); err != nil {
+		return err
+	}
+
+	if err := ValidateBlogCategories(categories); err != nil {
+		return err
+	}
+
+	b.Categories = categories
+	b.Name = name
+	b.Description = description
+	b.Markdown = markdown
+	b.IsPublished = isPublished
+	b.EstimatedReadTimeSeconds = estimatedReadTimeSeconds
+	b.UpdatedAt = time.Now().Unix()
+
+	return nil
+}
+
+func (b *BlogEntity) IncrementViews() {
+	b.Views++
+	b.UpdatedAt = time.Now().Unix()
+}
+
+func (b *BlogEntity) IncrementFavorites() {
+	b.Favorites++
+	b.UpdatedAt = time.Now().Unix()
+}
+
+func (b *BlogEntity) DecrementFavorites() {
+	if b.Favorites > 0 {
+		b.Favorites--
+		b.UpdatedAt = time.Now().Unix()
+	}
+}

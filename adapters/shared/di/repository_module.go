@@ -3,8 +3,10 @@ package di
 import (
 	"hinsun-backend/adapters/secondary/repositories"
 	"hinsun-backend/internal/domain/account"
+	"hinsun-backend/internal/domain/blog"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
+	"hinsun-backend/internal/domain/project"
 
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -15,6 +17,8 @@ var RepositioryModule = fx.Module("repositories",
 		ProvideExperienceRepository,
 		ProvideNotificationRepository,
 		PriovideAccountRepository,
+		ProvideBlogRepository,
+		ProvideProjectRepository,
 	),
 )
 
@@ -28,4 +32,12 @@ func ProvideNotificationRepository(db *gorm.DB) notification.NotificationReposit
 
 func PriovideAccountRepository(db *gorm.DB) account.AccountRepository {
 	return repositories.NewAccountRepository(db)
+}
+
+func ProvideBlogRepository(db *gorm.DB) blog.BlogRepository {
+	return repositories.NewBlogRepository(db)
+}
+
+func ProvideProjectRepository(db *gorm.DB) project.ProjectRepository {
+	return repositories.NewProjectRepository(db)
 }

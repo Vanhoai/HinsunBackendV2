@@ -15,6 +15,9 @@ var HandlerModule = fx.Module("v1_handlers",
 		ProvideValidator,
 		ProvideAuthHandler,
 		ProvideExperienceHandler,
+		ProvideBlogHandler,
+		ProvideProjectHandler,
+		ProvideAccountHandler,
 	),
 )
 
@@ -30,6 +33,18 @@ func ProvideExperienceHandler(app applications.GlobalAppService, validator *vali
 	return handlers.NewExperienceHandler(app, validator)
 }
 
+func ProvideBlogHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.BlogHandler {
+	return handlers.NewBlogHandler(app, validator)
+}
+
+func ProvideProjectHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.ProjectHandler {
+	return handlers.NewProjectHandler(app, validator)
+}
+
+func ProvideAccountHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.AccountHandler {
+	return handlers.NewAccountHandler(app, validator)
+}
+
 var RouterVersionModule = fx.Module("routers",
 	fx.Provide(
 		ProvideV1Route,
@@ -40,8 +55,11 @@ var RouterVersionModule = fx.Module("routers",
 func ProvideV1Route(
 	authHandler *handlers.AuthHandler,
 	experienceHandler *handlers.ExperienceHandler,
+	blogHandler *handlers.BlogHandler,
+	projectHandler *handlers.ProjectHandler,
+	accountHandler *handlers.AccountHandler,
 ) *v1.V1Routes {
-	return v1.NewV1Routes(authHandler, experienceHandler)
+	return v1.NewV1Routes(authHandler, experienceHandler, blogHandler, projectHandler, accountHandler)
 }
 
 func ProvideV2Route() *v2.V2Routes {

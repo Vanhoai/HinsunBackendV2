@@ -5,8 +5,10 @@ import (
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/auth"
+	"hinsun-backend/internal/domain/blog"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
+	"hinsun-backend/internal/domain/project"
 
 	"go.uber.org/fx"
 )
@@ -28,8 +30,14 @@ func ProvideAuthAppService(authService auth.AuthService, accountService account.
 	return applications.NewAuthAppService(authService, accountService)
 }
 
-func ProvideGlobalAppService(experienceService experience.ExperienceService, asyncEventBus *events.AsyncEventBus) applications.GlobalAppService {
-	return applications.NewGlobalAppService(experienceService, asyncEventBus)
+func ProvideGlobalAppService(
+	experienceService experience.ExperienceService,
+	blogService blog.BlogService,
+	projectService project.ProjectService,
+	accountService account.AccountService,
+	asyncEventBus *events.AsyncEventBus,
+) applications.GlobalAppService {
+	return applications.NewGlobalAppService(experienceService, blogService, projectService, accountService, asyncEventBus)
 }
 
 // ProvideAsyncEventBus provides an asynchronous event bus

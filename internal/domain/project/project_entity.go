@@ -18,6 +18,7 @@ type ProjectEntity struct {
 	ID          uuid.UUID
 	Name        string
 	Description string
+	Cover       string
 	Github      string
 	Tags        []string
 	Markdown    string
@@ -26,12 +27,13 @@ type ProjectEntity struct {
 	DeletedAt   *int64
 }
 
-func NewProjectEntity(id uuid.UUID, name, description, github string, tags []string, markdown string) *ProjectEntity {
+func NewProjectEntity(id uuid.UUID, name, description, github, cover string, tags []string, markdown string) *ProjectEntity {
 	now := time.Now()
 	return &ProjectEntity{
 		ID:          id,
 		Name:        name,
 		Description: description,
+		Cover:       cover,
 		Github:      github,
 		Tags:        tags,
 		Markdown:    markdown,
@@ -73,6 +75,34 @@ func ValidateProjectTags(tags []string) error {
 			fmt.Sprintf("number of project tags exceeds maximum of %d", MaxProjectTags),
 		)
 	}
+
+	return nil
+}
+
+func (p *ProjectEntity) Update(
+	name, description, github, cover string,
+	tags []string,
+	markdown string,
+) error {
+	if err := ValidateProjectName(name); err != nil {
+		return err
+	}
+
+	if err := ValidateProjectDescription(description); err != nil {
+		return err
+	}
+
+	if err := ValidateProjectTags(tags); err != nil {
+		return err
+	}
+
+	p.Name = name
+	p.Description = description
+	p.Cover = cover
+	p.Github = github
+	p.Tags = tags
+	p.Markdown = markdown
+	p.UpdatedAt = time.Now().Unix()
 
 	return nil
 }

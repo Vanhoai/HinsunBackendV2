@@ -3,8 +3,10 @@ package di
 import (
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/auth"
+	"hinsun-backend/internal/domain/blog"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
+	"hinsun-backend/internal/domain/project"
 	"hinsun-backend/pkg/jwt"
 	"hinsun-backend/pkg/security"
 
@@ -17,6 +19,8 @@ var ServiceModule = fx.Module("services",
 		ProvideNotificationService,
 		ProvideAccountService,
 		ProvideAuthService,
+		ProvideBlogService,
+		ProvideProjectService,
 	),
 )
 
@@ -34,4 +38,12 @@ func ProvideAccountService(repository account.AccountRepository) account.Account
 
 func ProvideAuthService(passwordHasher security.PasswordHasher, jwtService jwt.JwtService) auth.AuthService {
 	return auth.NewAuthService(passwordHasher, jwtService)
+}
+
+func ProvideBlogService(repository blog.BlogRepository) blog.BlogService {
+	return blog.NewBlogService(repository)
+}
+
+func ProvideProjectService(repository project.ProjectRepository) project.ProjectService {
+	return project.NewProjectService(repository)
 }
