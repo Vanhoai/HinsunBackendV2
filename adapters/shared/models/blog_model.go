@@ -22,8 +22,8 @@ type BlogModel struct {
 	Favorites                int64          `gorm:"type:bigint;default:0;not null"`
 	Views                    int64          `gorm:"type:bigint;default:0;not null"`
 	EstimatedReadTimeSeconds int64          `gorm:"type:bigint;not null"`
-	CreatedAt                int64          `gorm:"autoCreateTime:nano"`
-	UpdatedAt                int64          `gorm:"autoUpdateTime:nano"`
+	CreatedAt                int64          `gorm:"autoCreateTime"`
+	UpdatedAt                int64          `gorm:"autoUpdateTime"`
 	DeletedAt                *int64         `gorm:"index"`
 
 	// Relationship: Many Blogs belong to One Account

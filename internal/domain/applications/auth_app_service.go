@@ -2,10 +2,13 @@ package applications
 
 import (
 	"context"
+	"fmt"
+	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/auth"
 	"hinsun-backend/internal/domain/usecases"
 	"hinsun-backend/internal/domain/values"
+	"strconv"
 )
 
 type AuthAppService interface {
@@ -92,4 +95,30 @@ func (a *authAppService) EnsureAccountExists(ctx context.Context, params *usecas
 	}
 
 	return accountEntity, nil
+}
+
+func (a *authAppService) RefreshTokens(ctx context.Context, params *usecases.RefreshTokensParams) (*usecases.AuthResponse, error) {
+	claims, err := a.authService.VerifyRefreshToken(params.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Claims: ", claims.Role)
+
+	// convert claims.Role to int
+	roleInt, err := strconv.Atoi(claims.Role)
+	if err != nil {
+		return nil, failure.NewInternalFailure("failed to convert role to int", err)
+	}
+
+	// generate new token pair
+	tokenPair, err := a.authService.GenerateTokenPair(claims.AccountID, claims.Email, roleInt)
+	if err != nil {
+		return nil, failure.NewInternalFailure("failed to generate new token pair", err)
+	}
+
+	return &usecases.AuthResponse{
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+	}, nil
 }

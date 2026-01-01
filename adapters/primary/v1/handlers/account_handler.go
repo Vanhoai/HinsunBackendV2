@@ -5,6 +5,7 @@ import (
 	"errors"
 	"hinsun-backend/adapters/shared/https"
 	"hinsun-backend/adapters/shared/middlewares"
+	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -42,6 +43,7 @@ func (h *AccountHandler) Handler() chi.Router {
 	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireGod).Delete("/", h.deleteMultipleAccounts)
 
 	r.Get("/search", h.searchAccounts)
+	r.With(h.authMiddleware.RequireAuth).Get("/profile", h.findAccountProfile)
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.findAccountByID)
@@ -164,4 +166,20 @@ func (h *AccountHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	https.ResponseSuccess(w, http.StatusOK, "Account deleted successfully", deletedResult)
+}
+
+func (h *AccountHandler) findAccountProfile(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.GetClaimsFromContext(r.Context())
+	if !ok {
+		https.RespondWithFailure(w, failure.NewAuthenticationFailure("authentication required"))
+		return
+	}
+
+	account, err := h.app.FindAccountByID(r.Context(), claims.AccountID)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Account profile retrieved successfully", account)
 }

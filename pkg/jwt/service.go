@@ -95,6 +95,7 @@ func (j *jwtService) GenerateTokenPair(accountID, email string, role int) (*Toke
 		AccountID: accountID,
 		Email:     email,
 		JTI:       jti,
+		Role:      fmt.Sprintf("%d", role),
 		RegisteredClaims: jwtv4.RegisteredClaims{
 			ExpiresAt: jwtv4.NewNumericDate(refreshExpiresAt),
 			IssuedAt:  jwtv4.NewNumericDate(now),
@@ -123,8 +124,6 @@ func (j *jwtService) ValidateRefreshToken(token string) (*Claims, error) {
 }
 
 func (j *jwtService) validateToken(token string, verificationKey any) (*Claims, error) {
-	fmt.Println("Token: ", token)
-
 	parsedToken, err := jwtv4.ParseWithClaims(token, &Claims{}, func(t *jwtv4.Token) (any, error) {
 		// Validate signing method
 		expectedMethod := j.retrieveSigningMethod()

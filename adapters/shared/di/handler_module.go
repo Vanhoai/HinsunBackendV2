@@ -22,6 +22,7 @@ var HandlerModule = fx.Module("v1_handlers",
 		ProvideBlogHandler,
 		ProvideProjectHandler,
 		ProvideAccountHandler,
+		ProvideCategoryHandler,
 	),
 )
 
@@ -82,6 +83,15 @@ func ProvideAccountHandler(
 	return handlers.NewAccountHandler(app, validator, authMiddleware, roleMiddleware)
 }
 
+func ProvideCategoryHandler(
+	app applications.CategoryAppService,
+	validator *validator.Validate,
+	authMiddleware *middlewares.AuthMiddleware,
+	roleMiddleware *middlewares.RoleMiddleware,
+) *handlers.CategoryHandler {
+	return handlers.NewCategoryHandler(app, validator, authMiddleware, roleMiddleware)
+}
+
 var RouterVersionModule = fx.Module("routers",
 	fx.Provide(
 		ProvideV1Route,
@@ -95,8 +105,16 @@ func ProvideV1Route(
 	blogHandler *handlers.BlogHandler,
 	projectHandler *handlers.ProjectHandler,
 	accountHandler *handlers.AccountHandler,
+	categoryHandler *handlers.CategoryHandler,
 ) *v1.V1Routes {
-	return v1.NewV1Routes(authHandler, experienceHandler, blogHandler, projectHandler, accountHandler)
+	return v1.NewV1Routes(
+		authHandler,
+		experienceHandler,
+		blogHandler,
+		projectHandler,
+		accountHandler,
+		categoryHandler,
+	)
 }
 
 func ProvideV2Route() *v2.V2Routes {

@@ -14,8 +14,8 @@ type ProjectModel struct {
 	Github      string         `gorm:"type:varchar(255);not null"`
 	Tags        pq.StringArray `gorm:"type:text[];not null"`
 	Markdown    string         `gorm:"type:text;not null"`
-	CreatedAt   int64          `gorm:"autoCreateTime:nano"`
-	UpdatedAt   int64          `gorm:"autoUpdateTime:nano"`
+	CreatedAt   int64          `gorm:"autoCreateTime"`
+	UpdatedAt   int64          `gorm:"autoUpdateTime"`
 	DeletedAt   *int64         `gorm:"index"`
 }
 

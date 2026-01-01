@@ -31,38 +31,44 @@ type AccountEntity struct {
 }
 
 type PublicJSON struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Avatar    string    `json:"avatar,omitempty"`
-	Bio       string    `json:"bio,omitempty"`
-	CreatedAt int64     `json:"createdAt"`
-	UpdatedAt int64     `json:"updatedAt"`
+	ID            uuid.UUID `json:"id"`
+	Name          string    `json:"name"`
+	Email         string    `json:"email"`
+	EmailVerified bool      `json:"emailVerified"`
+	IsActive      bool      `json:"isActive"`
+	Avatar        string    `json:"avatar,omitempty"`
+	Bio           string    `json:"bio,omitempty"`
+	CreatedAt     int64     `json:"createdAt"`
+	UpdatedAt     int64     `json:"updatedAt"`
 }
 
 // MarshalJSON customizes JSON serialization to exclude password
 func (a AccountEntity) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&PublicJSON{
-		ID:        a.ID,
-		Name:      a.Name,
-		Email:     a.Email.Value(),
-		Avatar:    a.Avatar,
-		Bio:       a.Bio,
-		CreatedAt: a.CreatedAt,
-		UpdatedAt: a.UpdatedAt,
+		ID:            a.ID,
+		Name:          a.Name,
+		Email:         a.Email.Value(),
+		EmailVerified: a.EmailVerified,
+		IsActive:      a.IsActive,
+		Avatar:        a.Avatar,
+		Bio:           a.Bio,
+		CreatedAt:     a.CreatedAt,
+		UpdatedAt:     a.UpdatedAt,
 	})
 }
 
 // ToPublicJSON converts AccountEntity to public representation
 func (a *AccountEntity) ToPublicJSON() *PublicJSON {
 	return &PublicJSON{
-		ID:        a.ID,
-		Name:      a.Name,
-		Email:     a.Email.Value(),
-		Avatar:    a.Avatar,
-		Bio:       a.Bio,
-		CreatedAt: a.CreatedAt,
-		UpdatedAt: a.UpdatedAt,
+		ID:            a.ID,
+		Name:          a.Name,
+		Email:         a.Email.Value(),
+		EmailVerified: a.EmailVerified,
+		IsActive:      a.IsActive,
+		Avatar:        a.Avatar,
+		Bio:           a.Bio,
+		CreatedAt:     a.CreatedAt,
+		UpdatedAt:     a.UpdatedAt,
 	}
 }
 

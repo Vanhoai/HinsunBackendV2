@@ -7,25 +7,16 @@ type AuthEmailParams struct {
 	Password string `json:"password" validate:"required,min=8" example:"strongpassword123"`
 }
 
-// type OAuth2Params struct {
-// 	Provider values.OAuthProvider
-// }
-
-// type OAuth2Response struct {
-// 	AuthorizationUrl string
-// 	State            string
-// }
-
 type AuthResponse struct {
 	AccessToken  string `json:"accessToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 	RefreshToken string `json:"refreshToken" example:"dGhpcy1pcz1hLXJlZnJlc2gtdG9rZW4tZXhhbXBsZQ..."`
 }
 
-// type OAuth2CallbackParams struct {
-// 	Code  string
-// 	State string
-// }
+type RefreshTokensParams struct {
+	RefreshToken string `json:"refreshToken" validate:"required" example:"dGhpcy1pcz1hLXJlZnJlc2gtdG9rZW4tZXhhbXBsZQ..."`
+}
 
 type ManageSessionAuthUseCase interface {
 	AuthWithEmail(ctx context.Context, params *AuthEmailParams) (*AuthResponse, error)
+	RefreshTokens(ctx context.Context, params *RefreshTokensParams) (*AuthResponse, error)
 }

@@ -12,6 +12,7 @@ type V1Routes struct {
 	blogHandler       *handlers.BlogHandler
 	projectHandler    *handlers.ProjectHandler
 	accountHandler    *handlers.AccountHandler
+	categoryHandler   *handlers.CategoryHandler
 }
 
 func NewV1Routes(
@@ -20,6 +21,7 @@ func NewV1Routes(
 	blogHandler *handlers.BlogHandler,
 	projectHandler *handlers.ProjectHandler,
 	accountHandler *handlers.AccountHandler,
+	categoryHandler *handlers.CategoryHandler,
 ) *V1Routes {
 	return &V1Routes{
 		authHandler:       authHandler,
@@ -27,6 +29,7 @@ func NewV1Routes(
 		blogHandler:       blogHandler,
 		projectHandler:    projectHandler,
 		accountHandler:    accountHandler,
+		categoryHandler:   categoryHandler,
 	}
 }
 
@@ -38,6 +41,7 @@ func (vr *V1Routes) RegisterRoutes() chi.Router {
 	r.Mount("/blogs", vr.blogHandler.Handler())
 	r.Mount("/projects", vr.projectHandler.Handler())
 	r.Mount("/accounts", vr.accountHandler.Handler())
+	r.Mount("/categories", vr.categoryHandler.Handler())
 
 	return r
 }

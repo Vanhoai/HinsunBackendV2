@@ -18,8 +18,8 @@ type ExperienceModel struct {
 	Responsibilities pq.StringArray `gorm:"type:text[];not null"`
 	Period           string         `gorm:"type:varchar(100);not null"`
 	Extra            datatypes.JSON `gorm:"type:jsonb"`
-	CreatedAt        int64          `gorm:"autoCreateTime:nano"`
-	UpdatedAt        int64          `gorm:"autoUpdateTime:nano"`
+	CreatedAt        int64          `gorm:"autoCreateTime"`
+	UpdatedAt        int64          `gorm:"autoUpdateTime"`
 	DeletedAt        *int64         `gorm:"index"`
 }
 

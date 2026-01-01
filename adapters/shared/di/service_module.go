@@ -4,6 +4,7 @@ import (
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/auth"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/category"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
 	"hinsun-backend/internal/domain/project"
@@ -21,6 +22,7 @@ var ServiceModule = fx.Module("services",
 		ProvideAuthService,
 		ProvideBlogService,
 		ProvideProjectService,
+		ProvideCategoryService,
 	),
 )
 
@@ -46,4 +48,8 @@ func ProvideBlogService(repository blog.BlogRepository) blog.BlogService {
 
 func ProvideProjectService(repository project.ProjectRepository) project.ProjectService {
 	return project.NewProjectService(repository)
+}
+
+func ProvideCategoryService(repository category.CategoryRepository) category.CategoryService {
+	return category.NewCategoryService(repository)
 }

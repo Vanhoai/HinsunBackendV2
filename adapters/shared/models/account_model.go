@@ -18,8 +18,8 @@ type AccountModel struct {
 	Password      string    `gorm:"type:varchar(255);not null"`
 	Avatar        string    `gorm:"type:varchar(255)"`
 	Bio           string    `gorm:"type:text"`
-	CreatedAt     int64     `gorm:"autoCreateTime:nano"`
-	UpdatedAt     int64     `gorm:"autoUpdateTime:nano"`
+	CreatedAt     int64     `gorm:"autoCreateTime"`
+	UpdatedAt     int64     `gorm:"autoUpdateTime"`
 	DeletedAt     *int64    `gorm:"index"`
 
 	// Relationship: One Account has Many Blogs

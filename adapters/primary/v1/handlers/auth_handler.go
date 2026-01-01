@@ -36,7 +36,8 @@ func NewAuthHandler(
 func (h *AuthHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/sign-in", h.authEmail)
+	r.Post("/", h.authEmail)
+	r.Post("/refresh", h.refreshTokens)
 
 	return r
 }
@@ -60,4 +61,25 @@ func (h *AuthHandler) authEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	https.ResponseSuccess(w, http.StatusOK, "Authentication successful", response)
+}
+
+func (h *AuthHandler) refreshTokens(w http.ResponseWriter, r *http.Request) {
+	var params usecases.RefreshTokensParams
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
+
+	if err := h.validator.Struct(params); err != nil {
+		https.ValidationFailed(w, err)
+		return
+	}
+
+	response, err := h.app.RefreshTokens(r.Context(), &params)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Tokens refreshed successfully", response)
 }

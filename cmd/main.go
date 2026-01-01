@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/fx"
 )
@@ -42,6 +43,15 @@ func ProvideHTTPServer(params ServerParams) *HTTPServer {
 
 func NewHTTPServer(address string, params ServerParams) *HTTPServer {
 	r := chi.NewRouter()
+
+	corsConfig := configs.GlobalConfig.Cors
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   corsConfig.AllowedOrigins,
+		AllowedMethods:   corsConfig.AllowedMethods,
+		AllowedHeaders:   corsConfig.AllowedHeaders,
+		AllowCredentials: corsConfig.AllowCredentials,
+		MaxAge:           corsConfig.MaxAge,
+	}))
 
 	// Global middlewares
 	r.Use(middleware.Logger)

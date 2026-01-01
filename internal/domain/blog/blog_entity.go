@@ -237,7 +237,6 @@ func (b *BlogEntity) Update(
 	b.Markdowns = markdowns
 	b.IsPublished = isPublished
 	b.EstimatedReadTimeSeconds = estimatedReadTimeSeconds
-	b.UpdatedAt = time.Now().Unix()
 
 	return nil
 }

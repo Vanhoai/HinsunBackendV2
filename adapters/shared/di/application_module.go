@@ -6,6 +6,7 @@ import (
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/auth"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/category"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
 	"hinsun-backend/internal/domain/project"
@@ -21,6 +22,7 @@ var ApplicationModule = fx.Module("applications",
 		ProvideGlobalAppService,
 		ProvideBlogAppService,
 		ProvideAccountAppService,
+		ProvideCategoryAppService,
 	),
 )
 
@@ -46,6 +48,10 @@ func ProvideBlogAppService(blogService blog.BlogService, accountService account.
 
 func ProvideAccountAppService(accountService account.AccountService, authService auth.AuthService) applications.AccountAppService {
 	return applications.NewAccountAppService(accountService, authService)
+}
+
+func ProvideCategoryAppService(categoryService category.CategoryService) applications.CategoryAppService {
+	return applications.NewCategoryAppService(categoryService)
 }
 
 // ProvideAsyncEventBus provides an asynchronous event bus

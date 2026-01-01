@@ -10,6 +10,7 @@ type AuthService interface {
 	HashPassword(password string) (string, error)
 	VerifyPassword(password, hash string) error
 	GenerateTokenPair(accountID, email string, role int) (*jwt.TokenPair, error)
+	VerifyRefreshToken(refreshToken string) (*jwt.Claims, error)
 }
 
 type authService struct {
@@ -56,4 +57,14 @@ func (s *authService) GenerateTokenPair(accountID, email string, role int) (*jwt
 	}
 
 	return tokenPair, nil
+}
+
+// VerifyRefreshToken verifies the provided refresh token and returns the claims if valid.
+func (s *authService) VerifyRefreshToken(refreshToken string) (*jwt.Claims, error) {
+	claims, err := s.jwtService.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return nil, failure.NewAuthenticationFailure("invalid or expired refresh token").WithCause(err)
+	}
+
+	return claims, nil
 }

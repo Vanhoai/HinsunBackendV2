@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -56,6 +57,7 @@ func loadConfig(env string) *Config {
 		Env:      Env(env),
 		App:      loadAppConfig(),
 		Server:   loadServerConfig(),
+		Cors:     loadCorsConfig(),
 		Metrics:  loadMetricsConfig(),
 		Log:      loadLogConfig(),
 		Database: loadDatabaseConfig(),
@@ -81,6 +83,39 @@ func loadServerConfig() ServerConfig {
 		WriteTimeout: getEnvAsInt("SERVER_WRITE_TIMEOUT", 15),
 		IdleTimeout:  getEnvAsInt("SERVER_IDLE_TIMEOUT", 60),
 	}
+}
+
+// loadCorsConfig loads CORS configuration
+func loadCorsConfig() CorsConfig {
+	return CorsConfig{
+		AllowedOrigins:   getEnvAsSlice("CORS_ALLOWED_ORIGINS", []string{}, ","),
+		AllowedMethods:   getEnvAsSlice("CORS_ALLOWED_METHODS", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, ","),
+		AllowedHeaders:   getEnvAsSlice("CORS_ALLOWED_HEADERS", []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}, ","),
+		AllowCredentials: getEnvAsBool("CORS_ALLOW_CREDENTIALS", false),
+		MaxAge:           getEnvAsInt("CORS_MAX_AGE", 300),
+	}
+}
+
+// getEnvAsSlice gets a string slice environment variable or returns a default value
+func getEnvAsSlice(key string, defaultValue []string, sep string) []string {
+	valueStr := os.Getenv(key)
+	if valueStr == "" {
+		return defaultValue
+	}
+
+	return splitAndTrim(valueStr, sep)
+}
+
+func splitAndTrim(s, sep string) []string {
+	parts := []string{}
+	for _, part := range strings.Split(s, sep) {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			parts = append(parts, trimmed)
+		}
+	}
+
+	return parts
 }
 
 // loadMetricsConfig loads metrics configuration

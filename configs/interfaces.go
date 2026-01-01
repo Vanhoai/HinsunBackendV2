@@ -4,6 +4,7 @@ type Config struct {
 	Env      Env
 	App      AppConfig
 	Server   ServerConfig
+	Cors     CorsConfig
 	Metrics  MetricsConfig
 	Log      LogConfig
 	Database DatabaseConfig
@@ -22,6 +23,14 @@ type ServerConfig struct {
 	ReadTimeout  int
 	WriteTimeout int
 	IdleTimeout  int
+}
+
+type CorsConfig struct {
+	AllowedOrigins   []string
+	AllowedMethods   []string
+	AllowedHeaders   []string
+	AllowCredentials bool
+	MaxAge           int
 }
 
 type MetricsConfig struct {

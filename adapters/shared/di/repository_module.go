@@ -4,6 +4,7 @@ import (
 	"hinsun-backend/adapters/secondary/repositories"
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/category"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
 	"hinsun-backend/internal/domain/project"
@@ -19,6 +20,7 @@ var RepositioryModule = fx.Module("repositories",
 		PriovideAccountRepository,
 		ProvideBlogRepository,
 		ProvideProjectRepository,
+		ProvideCategoryRepository,
 	),
 )
 
@@ -40,4 +42,8 @@ func ProvideBlogRepository(db *gorm.DB) blog.BlogRepository {
 
 func ProvideProjectRepository(db *gorm.DB) project.ProjectRepository {
 	return repositories.NewProjectRepository(db)
+}
+
+func ProvideCategoryRepository(db *gorm.DB) category.CategoryRepository {
+	return repositories.NewCategoryRepository(db)
 }
