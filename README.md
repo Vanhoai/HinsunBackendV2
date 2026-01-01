@@ -166,13 +166,6 @@ This is the first time, I have used DDD and Hexagonal Architecture, so if you ha
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-## 👤 Author
-
-**Tran Van Hoai**
-
-- Email: vanhoai.adv@gmail.com
-- Website: [hinsun](https://visionary-lyart.vercel.app/)
-
 ## 🙏 Acknowledgments
 
 - Clean Architecture by Robert C. Martin
