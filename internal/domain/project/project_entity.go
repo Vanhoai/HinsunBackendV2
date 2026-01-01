@@ -15,16 +15,16 @@ const (
 )
 
 type ProjectEntity struct {
-	ID          uuid.UUID
-	Name        string
-	Description string
-	Cover       string
-	Github      string
-	Tags        []string
-	Markdown    string
-	CreatedAt   int64
-	UpdatedAt   int64
-	DeletedAt   *int64
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Cover       string    `json:"cover"`
+	Github      string    `json:"github"`
+	Tags        []string  `json:"tags"`
+	Markdown    string    `json:"markdown"`
+	CreatedAt   int64     `json:"createdAt"`
+	UpdatedAt   int64     `json:"updatedAt"`
+	DeletedAt   *int64    `json:"deletedAt,omitempty"`
 }
 
 func NewProjectEntity(id uuid.UUID, name, description, github, cover string, tags []string, markdown string) *ProjectEntity {

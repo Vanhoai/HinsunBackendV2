@@ -1,6 +1,7 @@
 package models
 
 import (
+	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/values"
 
@@ -12,6 +13,7 @@ type AccountModel struct {
 	Name          string    `gorm:"type:varchar(100);not null"`
 	Email         string    `gorm:"type:varchar(100);uniqueIndex;not null"`
 	EmailVerified bool      `gorm:"type:boolean;default:false;not null"`
+	Role          int       `gorm:"type:int;default:0;not null"`
 	IsActive      bool      `gorm:"type:boolean;default:true;not null"`
 	Password      string    `gorm:"type:varchar(255);not null"`
 	Avatar        string    `gorm:"type:varchar(255)"`
@@ -19,30 +21,38 @@ type AccountModel struct {
 	CreatedAt     int64     `gorm:"autoCreateTime:nano"`
 	UpdatedAt     int64     `gorm:"autoUpdateTime:nano"`
 	DeletedAt     *int64    `gorm:"index"`
+
+	// Relationship: One Account has Many Blogs
+	Blogs []BlogModel `gorm:"foreignKey:AuthorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func (AccountModel) TableName() string { return "accounts" }
 
-func ToAccountEntity(model *AccountModel) *account.AccountEntity {
-	email, err := values.NewEmail(model.Email)
+func (e *AccountModel) ToEntity() (*account.AccountEntity, error) {
+	email, err := values.NewEmail(e.Email)
 	if err != nil {
-		// Handle error appropriately, possibly returning nil or logging
-		return nil
+		return nil, failure.NewInternalFailure("invalid email in account model: %v", err)
+	}
+
+	role, err := values.RoleFromInt(e.Role)
+	if err != nil {
+		return nil, failure.NewInternalFailure("invalid role in account model: %v", err)
 	}
 
 	return &account.AccountEntity{
-		ID:            model.ID,
-		Name:          model.Name,
+		ID:            e.ID,
+		Name:          e.Name,
 		Email:         email,
-		EmailVerified: model.EmailVerified,
-		IsActive:      model.IsActive,
-		Password:      model.Password,
-		Avatar:        model.Avatar,
-		Bio:           model.Bio,
-		CreatedAt:     model.CreatedAt,
-		UpdatedAt:     model.UpdatedAt,
-		DeletedAt:     model.DeletedAt,
-	}
+		EmailVerified: e.EmailVerified,
+		IsActive:      e.IsActive,
+		Password:      e.Password,
+		Role:          role,
+		Avatar:        e.Avatar,
+		Bio:           e.Bio,
+		CreatedAt:     e.CreatedAt,
+		UpdatedAt:     e.UpdatedAt,
+		DeletedAt:     e.DeletedAt,
+	}, nil
 }
 
 func FromAccountEntity(entity *account.AccountEntity) AccountModel {

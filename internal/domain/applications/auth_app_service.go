@@ -77,6 +77,7 @@ func (a *authAppService) EnsureAccountExists(ctx context.Context, params *usecas
 			hashedPassword,
 			"https://i.pinimg.com/1200x/1d/b1/e6/1db1e66e7b8da532a1271b796621607d.jpg",
 			"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+			values.NormalRole,
 		)
 
 		if err != nil {

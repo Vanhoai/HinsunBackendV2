@@ -74,8 +74,8 @@ func (s *projectService) CreateProject(
 		uuid.New(),
 		name,
 		description,
-		cover,
 		github,
+		cover,
 		tags,
 		markdown,
 	)

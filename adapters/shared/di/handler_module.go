@@ -33,7 +33,7 @@ func ProvideExperienceHandler(app applications.GlobalAppService, validator *vali
 	return handlers.NewExperienceHandler(app, validator)
 }
 
-func ProvideBlogHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.BlogHandler {
+func ProvideBlogHandler(app applications.BlogAppSevice, validator *validator.Validate) *handlers.BlogHandler {
 	return handlers.NewBlogHandler(app, validator)
 }
 
@@ -41,7 +41,7 @@ func ProvideProjectHandler(app applications.GlobalAppService, validator *validat
 	return handlers.NewProjectHandler(app, validator)
 }
 
-func ProvideAccountHandler(app applications.GlobalAppService, validator *validator.Validate) *handlers.AccountHandler {
+func ProvideAccountHandler(app applications.AccountAppService, validator *validator.Validate) *handlers.AccountHandler {
 	return handlers.NewAccountHandler(app, validator)
 }
 

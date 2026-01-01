@@ -19,6 +19,8 @@ var ApplicationModule = fx.Module("applications",
 		ProvideAsyncEventBus,
 		ProvideAuthAppService,
 		ProvideGlobalAppService,
+		ProvideBlogAppService,
+		ProvideAccountAppService,
 	),
 )
 
@@ -32,12 +34,18 @@ func ProvideAuthAppService(authService auth.AuthService, accountService account.
 
 func ProvideGlobalAppService(
 	experienceService experience.ExperienceService,
-	blogService blog.BlogService,
 	projectService project.ProjectService,
-	accountService account.AccountService,
 	asyncEventBus *events.AsyncEventBus,
 ) applications.GlobalAppService {
-	return applications.NewGlobalAppService(experienceService, blogService, projectService, accountService, asyncEventBus)
+	return applications.NewGlobalAppService(experienceService, projectService, asyncEventBus)
+}
+
+func ProvideBlogAppService(blogService blog.BlogService) applications.BlogAppSevice {
+	return applications.NewBlogAppService(blogService)
+}
+
+func ProvideAccountAppService(accountService account.AccountService, authService auth.AuthService) applications.AccountAppService {
+	return applications.NewAccountAppService(accountService, authService)
 }
 
 // ProvideAsyncEventBus provides an asynchronous event bus

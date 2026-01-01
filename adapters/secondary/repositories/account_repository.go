@@ -40,17 +40,74 @@ func (r *accountRepository) FindByEmail(ctx context.Context, email *values.Email
 		return nil, failure.NewDatabaseFailure("Failed to retrieve account from database").WithCause(err)
 	}
 
-	return models.ToAccountEntity(&account), nil
+	entity, err := account.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+
+	return entity, nil
 }
 
 func (r *accountRepository) Update(ctx context.Context, account *account.AccountEntity) (int, error) {
-	return 0, nil
+	rowsAffected, err := gorm.G[models.AccountModel](r.db).Where("id = ?", account.ID).Updates(ctx, models.FromAccountEntity(account))
+	if err != nil {
+		return 0, failure.NewDatabaseFailure("Failed to update account in database").WithCause(err)
+	}
+
+	return rowsAffected, nil
 }
 
 func (r *accountRepository) Delete(ctx context.Context, id string) (int, error) {
-	return 0, nil
+	rowAffected, err := gorm.G[models.AccountModel](r.db).Where("id = ?", id).Delete(ctx)
+	if err != nil {
+		return 0, failure.NewDatabaseFailure("Failed to delete account from database").WithCause(err)
+	}
+
+	return rowAffected, nil
+}
+
+func (r *accountRepository) DeleteMany(ctx context.Context, ids []string) (int, error) {
+	rowAffected, err := gorm.G[models.AccountModel](r.db).Where("id IN ?", ids).Delete(ctx)
+	if err != nil {
+		return 0, failure.NewDatabaseFailure("Failed to delete accounts from database").WithCause(err)
+	}
+
+	return rowAffected, nil
 }
 
 func (r *accountRepository) FindByID(ctx context.Context, id string) (*account.AccountEntity, error) {
-	return nil, nil
+	accountModel, err := gorm.G[models.AccountModel](r.db).Where("id = ?", id).First(ctx)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, failure.NewDatabaseFailure("Failed to retrieve account from database").WithCause(err)
+	}
+
+	entity, err := accountModel.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+
+	return entity, nil
+}
+
+func (r *accountRepository) FindAll(ctx context.Context) ([]*account.AccountEntity, error) {
+	blogs, err := gorm.G[models.AccountModel](r.db).Find(ctx)
+	if err != nil {
+		return nil, failure.NewDatabaseFailure("Failed to retrieve blogs from database").WithCause(err)
+	}
+
+	var accountEntities []*account.AccountEntity
+	for _, accountModel := range blogs {
+		entity, err := accountModel.ToEntity()
+		if err != nil {
+			return nil, err
+		}
+
+		accountEntities = append(accountEntities, entity)
+	}
+
+	return accountEntities, nil
 }

@@ -13,40 +13,41 @@ import (
 )
 
 type BlogHandler struct {
-	globalAppService applications.GlobalAppService
-	validator        *validator.Validate
+	app       applications.BlogAppSevice
+	validator *validator.Validate
 }
 
-func NewBlogHandler(globalAppService applications.GlobalAppService, validator *validator.Validate) *BlogHandler {
+func NewBlogHandler(app applications.BlogAppSevice, validator *validator.Validate) *BlogHandler {
 	return &BlogHandler{
-		globalAppService: globalAppService,
-		validator:        validator,
+		app:       app,
+		validator: validator,
 	}
 }
 
 func (h *BlogHandler) Handler() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/", h.findAllBlogs)
+	r.Get("/", h.findBlogs)
 	r.Post("/", h.createBlog)
 	r.Delete("/", h.deleteMultipleBlogs)
 
 	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", h.findBlogByID)
+		r.Get("/", h.findBlog)
 		r.Delete("/", h.deleteBlog)
 		r.Put("/", h.updateBlog)
-		r.Post("/views", h.incrementBlogViews)
-		r.Post("/favorites", h.incrementBlogFavorites)
-		r.Delete("/favorites", h.decrementBlogFavorites)
 	})
-
-	r.Get("/author/{authorId}", h.findBlogsByAuthor)
 
 	return r
 }
 
-func (h *BlogHandler) findAllBlogs(w http.ResponseWriter, r *http.Request) {
-	blogs, err := h.globalAppService.FindBlogs(r.Context())
+func (h *BlogHandler) findBlogs(w http.ResponseWriter, r *http.Request) {
+	var query usecases.FindBlogsQuery
+	if err := https.BindQuery(r, &query); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
+
+	blogs, err := h.app.FindBlogs(r.Context(), &query)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -55,26 +56,15 @@ func (h *BlogHandler) findAllBlogs(w http.ResponseWriter, r *http.Request) {
 	https.ResponseSuccess(w, http.StatusOK, "Blogs retrieved successfully", blogs)
 }
 
-func (h *BlogHandler) findBlogByID(w http.ResponseWriter, r *http.Request) {
+func (h *BlogHandler) findBlog(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	blog, err := h.globalAppService.FindBlog(r.Context(), id)
+	blog, err := h.app.FindBlog(r.Context(), id)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
 	}
 
 	https.ResponseSuccess(w, http.StatusOK, "Blog retrieved successfully", blog)
-}
-
-func (h *BlogHandler) findBlogsByAuthor(w http.ResponseWriter, r *http.Request) {
-	authorId := chi.URLParam(r, "authorId")
-	blogs, err := h.globalAppService.FindBlogsByAuthor(r.Context(), authorId)
-	if err != nil {
-		https.RespondWithFailure(w, err)
-		return
-	}
-
-	https.ResponseSuccess(w, http.StatusOK, "Blogs retrieved successfully", blogs)
 }
 
 func (h *BlogHandler) createBlog(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +79,7 @@ func (h *BlogHandler) createBlog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	blog, err := h.globalAppService.CreateBlog(r.Context(), &params)
+	blog, err := h.app.CreateBlog(r.Context(), &params)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -111,7 +101,7 @@ func (h *BlogHandler) updateBlog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedBlog, err := h.globalAppService.UpdateBlog(r.Context(), id, &params)
+	updatedBlog, err := h.app.UpdateBlog(r.Context(), id, &params)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -122,7 +112,7 @@ func (h *BlogHandler) updateBlog(w http.ResponseWriter, r *http.Request) {
 
 func (h *BlogHandler) deleteBlog(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	deletedResult, err := h.globalAppService.DeleteBlog(r.Context(), id)
+	deletedResult, err := h.app.DeleteBlog(r.Context(), id)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
@@ -144,44 +134,11 @@ func (h *BlogHandler) deleteMultipleBlogs(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	deletedResult, err := h.globalAppService.DeleteMultipleBlogs(r.Context(), &query)
+	deletedResult, err := h.app.DeleteMultipleBlogs(r.Context(), &query)
 	if err != nil {
 		https.RespondWithFailure(w, err)
 		return
 	}
 
 	https.ResponseSuccess(w, http.StatusOK, "Blogs deleted successfully", deletedResult)
-}
-
-func (h *BlogHandler) incrementBlogViews(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	err := h.globalAppService.IncrementBlogViews(r.Context(), id)
-	if err != nil {
-		https.RespondWithFailure(w, err)
-		return
-	}
-
-	https.ResponseSuccess(w, http.StatusOK, "Blog views incremented successfully", nil)
-}
-
-func (h *BlogHandler) incrementBlogFavorites(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	err := h.globalAppService.IncrementBlogFavorites(r.Context(), id)
-	if err != nil {
-		https.RespondWithFailure(w, err)
-		return
-	}
-
-	https.ResponseSuccess(w, http.StatusOK, "Blog favorites incremented successfully", nil)
-}
-
-func (h *BlogHandler) decrementBlogFavorites(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	err := h.globalAppService.DecrementBlogFavorites(r.Context(), id)
-	if err != nil {
-		https.RespondWithFailure(w, err)
-		return
-	}
-
-	https.ResponseSuccess(w, http.StatusOK, "Blog favorites decremented successfully", nil)
 }

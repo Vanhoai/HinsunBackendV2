@@ -33,8 +33,8 @@ func (h *ProjectHandler) Handler() chi.Router {
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.findProjectByID)
-		r.Delete("/", h.deleteProject)
 		r.Put("/", h.updateProject)
+		r.Delete("/", h.deleteProject)
 	})
 
 	return r

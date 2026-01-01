@@ -55,7 +55,12 @@ func NewPostgresClient() (*PostgresClient, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	// gormDB.AutoMigrate(&models.ExperienceModel{}, &models.AccountModel{}, &models.BlogModel{}, &models.ProjectModel{})
+	// gormDB.AutoMigrate(
+	// 	&models.ExperienceModel{},
+	// 	&models.AccountModel{},
+	// 	&models.ProjectModel{},
+	// 	&models.BlogModel{},
+	// )
 	log.Logger.Info("✅ Database connection established successfully")
 	return &PostgresClient{DB: gormDB}, nil
 }
