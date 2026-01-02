@@ -19,4 +19,5 @@ type RefreshTokensParams struct {
 type ManageSessionAuthUseCase interface {
 	AuthWithEmail(ctx context.Context, params *AuthEmailParams) (*AuthResponse, error)
 	RefreshTokens(ctx context.Context, params *RefreshTokensParams) (*AuthResponse, error)
+	SignOut(ctx context.Context) error
 }

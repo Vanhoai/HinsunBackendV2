@@ -3,8 +3,6 @@ package project
 import (
 	"context"
 	"hinsun-backend/internal/core/failure"
-
-	"github.com/google/uuid"
 )
 
 type ProjectService interface {
@@ -71,7 +69,6 @@ func (s *projectService) CreateProject(
 
 	// Create new project entity
 	newProject := NewProjectEntity(
-		uuid.New(),
 		name,
 		description,
 		github,

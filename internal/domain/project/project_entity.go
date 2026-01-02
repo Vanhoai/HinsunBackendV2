@@ -27,10 +27,10 @@ type ProjectEntity struct {
 	DeletedAt   *int64    `json:"deletedAt,omitempty"`
 }
 
-func NewProjectEntity(id uuid.UUID, name, description, github, cover string, tags []string, markdown string) *ProjectEntity {
+func NewProjectEntity(name, description, github, cover string, tags []string, markdown string) *ProjectEntity {
 	now := time.Now()
 	return &ProjectEntity{
-		ID:          id,
+		ID:          uuid.New(),
 		Name:        name,
 		Description: description,
 		Cover:       cover,

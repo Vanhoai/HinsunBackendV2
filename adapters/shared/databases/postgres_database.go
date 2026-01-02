@@ -2,7 +2,6 @@ package databases
 
 import (
 	"fmt"
-	"hinsun-backend/adapters/shared/models"
 	"hinsun-backend/configs"
 	"hinsun-backend/internal/core/log"
 	"time"
@@ -56,13 +55,13 @@ func NewPostgresClient() (*PostgresClient, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	gormDB.AutoMigrate(
-		&models.ExperienceModel{},
-		&models.AccountModel{},
-		&models.ProjectModel{},
-		&models.BlogModel{},
-		&models.CategoryModel{},
-	)
+	// gormDB.AutoMigrate(
+	// 	&models.ExperienceModel{},
+	// 	&models.AccountModel{},
+	// 	&models.ProjectModel{},
+	// 	&models.BlogModel{},
+	// 	&models.CategoryModel{},
+	// )
 	log.Logger.Info("✅ Database connection established successfully")
 	return &PostgresClient{DB: gormDB}, nil
 }

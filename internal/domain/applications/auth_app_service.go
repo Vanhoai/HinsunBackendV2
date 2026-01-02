@@ -122,3 +122,9 @@ func (a *authAppService) RefreshTokens(ctx context.Context, params *usecases.Ref
 		RefreshToken: tokenPair.RefreshToken,
 	}, nil
 }
+
+func (a *authAppService) SignOut(ctx context.Context) error {
+	// Currently, there's no server-side session management.
+	// Sign-out is handled on the client side by discarding tokens.
+	return nil
+}

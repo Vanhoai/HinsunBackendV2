@@ -12,6 +12,7 @@ type ProjectModel struct {
 	Name        string         `gorm:"type:varchar(100);not null;uniqueIndex"`
 	Description string         `gorm:"type:varchar(500);not null"`
 	Github      string         `gorm:"type:varchar(255);not null"`
+	Cover       string         `gorm:"type:varchar(255);not null"`
 	Tags        pq.StringArray `gorm:"type:text[];not null"`
 	Markdown    string         `gorm:"type:text;not null"`
 	CreatedAt   int64          `gorm:"autoCreateTime"`
@@ -28,6 +29,7 @@ func (p *ProjectModel) ToEntity() *project.ProjectEntity {
 		Name:        p.Name,
 		Description: p.Description,
 		Github:      p.Github,
+		Cover:       p.Cover,
 		Tags:        p.Tags,
 		Markdown:    p.Markdown,
 		CreatedAt:   p.CreatedAt,
@@ -41,6 +43,7 @@ func FromProjectEntity(p *project.ProjectEntity) ProjectModel {
 		ID:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
+		Cover:       p.Cover,
 		Github:      p.Github,
 		Tags:        p.Tags,
 		Markdown:    p.Markdown,

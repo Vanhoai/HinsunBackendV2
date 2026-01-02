@@ -38,6 +38,7 @@ func (h *AuthHandler) Handler() chi.Router {
 
 	r.Post("/", h.authEmail)
 	r.Post("/refresh", h.refreshTokens)
+	r.With(h.authMiddleware.RequireAuth).Post("/signout", h.signOut)
 
 	return r
 }
@@ -82,4 +83,14 @@ func (h *AuthHandler) refreshTokens(w http.ResponseWriter, r *http.Request) {
 	}
 
 	https.ResponseSuccess(w, http.StatusOK, "Tokens refreshed successfully", response)
+}
+
+func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
+	err := h.app.SignOut(r.Context())
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Signed out successfully", nil)
 }
