@@ -106,8 +106,8 @@ func NewAccount(
 func (a *AccountEntity) Update(
 	name string,
 	email *values.Email,
-	password, avatar, bio string,
-	role values.AccountRole,
+	emailVerified bool,
+	avatar, bio string,
 ) error {
 	if err := ValidateName(name); err != nil {
 		return err
@@ -119,10 +119,9 @@ func (a *AccountEntity) Update(
 
 	a.Name = name
 	a.Email = email
-	a.Password = password
+	a.EmailVerified = emailVerified
 	a.Avatar = avatar
 	a.Bio = bio
-	a.Role = role
 	a.UpdatedAt = time.Now().Unix()
 
 	return nil

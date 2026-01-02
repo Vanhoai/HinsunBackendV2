@@ -20,12 +20,10 @@ type CreateAccountParams struct {
 type UpdateAccountParams struct {
 	Name          string `json:"name" validate:"required,min=2,max=50"`
 	Email         string `json:"email" validate:"required,email"`
-	Password      string `json:"password" validate:"required,min=8"`
 	EmailVerified bool   `json:"emailVerified"`
 	Avatar        string `json:"avatar" validate:"omitempty,url"`
 	Bio           string `json:"bio" validate:"omitempty,max=300"`
 	IsActive      bool   `json:"isActive"`
-	Role          int    `json:"role"`
 }
 
 type DeleteAccountsQuery struct {

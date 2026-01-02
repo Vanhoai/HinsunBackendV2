@@ -96,25 +96,14 @@ func (s *accountAppService) UpdateAccount(ctx context.Context, id string, params
 		return nil, err
 	}
 
-	role, err := values.RoleFromInt(params.Role)
-	if err != nil {
-		return nil, err
-	}
-
-	hashedPassword, err := s.authService.HashPassword(params.Password)
-	if err != nil {
-		return nil, err
-	}
-
 	return s.accountService.UpdateAccount(
 		ctx,
 		id,
 		params.Name,
 		email,
-		hashedPassword,
+		params.EmailVerified,
 		params.Avatar,
 		params.Bio,
-		role,
 	)
 }
 

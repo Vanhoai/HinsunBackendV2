@@ -16,7 +16,7 @@ type AccountService interface {
 
 	FindAccountByID(ctx context.Context, id string) (*AccountEntity, error)
 	DeleteAccount(ctx context.Context, id string) (int, error)
-	UpdateAccount(ctx context.Context, id string, name string, email *values.Email, hashedPassword, avatar, bio string, role values.AccountRole) (*AccountEntity, error)
+	UpdateAccount(ctx context.Context, id string, name string, email *values.Email, emailVerified bool, avatar, bio string) (*AccountEntity, error)
 }
 
 type accountService struct {
@@ -91,7 +91,7 @@ func (s *accountService) DeleteMultipleAccounts(ctx context.Context, ids []strin
 	return s.repository.DeleteMany(ctx, ids)
 }
 
-func (s *accountService) UpdateAccount(ctx context.Context, id string, name string, email *values.Email, hashedPassword, avatar, bio string, role values.AccountRole) (*AccountEntity, error) {
+func (s *accountService) UpdateAccount(ctx context.Context, id string, name string, email *values.Email, emailVerified bool, avatar, bio string) (*AccountEntity, error) {
 	// 1. Retrieve existing account
 	existingAccount, err := s.repository.FindByID(ctx, id)
 	if err != nil {
@@ -120,10 +120,9 @@ func (s *accountService) UpdateAccount(ctx context.Context, id string, name stri
 	err = existingAccount.Update(
 		name,
 		email,
-		hashedPassword,
+		emailVerified,
 		avatar,
 		bio,
-		role,
 	)
 
 	if err != nil {
