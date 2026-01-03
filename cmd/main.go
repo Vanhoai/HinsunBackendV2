@@ -45,8 +45,6 @@ func NewHTTPServer(address string, params ServerParams) *HTTPServer {
 	r := chi.NewRouter()
 
 	corsConfig := configs.GlobalConfig.Cors
-	fmt.Printf("CORS Config: %+v\n", corsConfig)
-
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   corsConfig.AllowedOrigins,
 		AllowedMethods:   corsConfig.AllowedMethods,

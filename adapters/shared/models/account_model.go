@@ -22,8 +22,8 @@ type AccountModel struct {
 	UpdatedAt     int64     `gorm:"autoUpdateTime"`
 	DeletedAt     *int64    `gorm:"index"`
 
-	// Relationship: One Account has Many Blogs
-	Blogs []BlogModel `gorm:"foreignKey:AuthorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Blogs    []BlogModel    `gorm:"foreignKey:AuthorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Comments []CommentModel `gorm:"foreignKey:AuthorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func (AccountModel) TableName() string { return "accounts" }

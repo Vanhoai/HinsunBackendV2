@@ -13,6 +13,7 @@ import (
 type BlogModel struct {
 	ID                       uuid.UUID      `gorm:"primaryKey;type:uuid;default:uuidv7()"`
 	AuthorID                 uuid.UUID      `gorm:"type:uuid;not null;index"`
+	Slug                     string         `gorm:"type:text;not null;uniqueIndex"`
 	Languages                pq.StringArray `gorm:"type:text[];not null"`
 	Categories               pq.StringArray `gorm:"type:text[];not null"`
 	Names                    datatypes.JSON `gorm:"type:jsonb;not null"` // Map of language code -> name
@@ -26,8 +27,8 @@ type BlogModel struct {
 	UpdatedAt                int64          `gorm:"autoUpdateTime"`
 	DeletedAt                *int64         `gorm:"index"`
 
-	// Relationship: Many Blogs belong to One Account
-	Author *AccountModel `gorm:"foreignKey:AuthorID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Author   *AccountModel  `gorm:"foreignKey:AuthorID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Comments []CommentModel `gorm:"foreignKey:BlogID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func (BlogModel) TableName() string { return "blogs" }
@@ -57,6 +58,7 @@ func (b *BlogModel) ToEntity() *blog.BlogEntity {
 	return &blog.BlogEntity{
 		ID:                       b.ID,
 		AuthorID:                 b.AuthorID,
+		Slug:                     b.Slug,
 		Languages:                languages,
 		Categories:               b.Categories,
 		Names:                    names,
@@ -80,6 +82,7 @@ func FromBlogEntity(b *blog.BlogEntity) BlogModel {
 	return BlogModel{
 		ID:                       b.ID,
 		AuthorID:                 b.AuthorID,
+		Slug:                     b.Slug,
 		Languages:                values.ConvertMarkdownLanguageCodesToStringArray(b.Languages),
 		Categories:               b.Categories,
 		Names:                    namesJSON,

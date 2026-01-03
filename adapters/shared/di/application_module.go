@@ -7,6 +7,7 @@ import (
 	"hinsun-backend/internal/domain/auth"
 	"hinsun-backend/internal/domain/blog"
 	"hinsun-backend/internal/domain/category"
+	"hinsun-backend/internal/domain/comment"
 	"hinsun-backend/internal/domain/experience"
 	"hinsun-backend/internal/domain/notification"
 	"hinsun-backend/internal/domain/project"
@@ -42,8 +43,8 @@ func ProvideGlobalAppService(
 	return applications.NewGlobalAppService(experienceService, projectService, asyncEventBus)
 }
 
-func ProvideBlogAppService(blogService blog.BlogService, accountService account.AccountService) applications.BlogAppService {
-	return applications.NewBlogAppService(blogService, accountService)
+func ProvideBlogAppService(blogService blog.BlogService, commentService comment.CommentService, accountService account.AccountService) applications.BlogAppService {
+	return applications.NewBlogAppService(blogService, commentService, accountService)
 }
 
 func ProvideAccountAppService(accountService account.AccountService, authService auth.AuthService) applications.AccountAppService {

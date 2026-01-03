@@ -4,10 +4,13 @@ import (
 	"context"
 	"hinsun-backend/internal/core/types"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/comment"
 	"hinsun-backend/internal/domain/values"
 
 	"github.com/google/uuid"
 )
+
+// ================================== ManageBlogUseCase =================================
 
 type CreateBlogParams struct {
 	AuthorID                 uuid.UUID            `json:"authorId" validate:"required"`
@@ -48,3 +51,23 @@ type ManageBlogUseCase interface {
 	UpdateBlog(ctx context.Context, id string, params *UpdateBlogParams) (*blog.BlogEntity, error)
 	DeleteBlog(ctx context.Context, id string) (*types.DeletedResult, error)
 }
+
+// ================================== ManageBlogUseCase =================================
+
+// ================================== CommentBlogUseCase =================================
+
+type AddCommentToBlogParams struct {
+	Content string `json:"content" validate:"required,min=1,max=1000"`
+}
+
+type UpdateCommentOnBlogParams struct {
+	Content string `json:"content" validate:"required,min=1,max=1000"`
+}
+
+type CommentBlogUseCase interface {
+	AddCommentToBlog(ctx context.Context, blogId string, accountId string, params *AddCommentToBlogParams) (*comment.CommentEntity, error)
+	UpdateCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string, params *UpdateCommentOnBlogParams) (*comment.CommentEntity, error)
+	DeleteCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string) (*types.DeletedResult, error)
+}
+
+// ================================== CommentBlogUseCase =================================

@@ -7,29 +7,35 @@ import (
 	"hinsun-backend/internal/core/types"
 	"hinsun-backend/internal/domain/account"
 	"hinsun-backend/internal/domain/blog"
+	"hinsun-backend/internal/domain/comment"
 	"hinsun-backend/internal/domain/usecases"
 	"hinsun-backend/internal/domain/values"
 )
 
 type BlogAppService interface {
 	usecases.ManageBlogUseCase
+	usecases.CommentBlogUseCase
 }
 
 type blogAppService struct {
 	blogService    blog.BlogService
+	commentService comment.CommentService
 	accountService account.AccountService
 }
 
 func NewBlogAppService(
 	blogService blog.BlogService,
+	commentService comment.CommentService,
 	accountService account.AccountService,
 ) BlogAppService {
 	return &blogAppService{
 		blogService:    blogService,
+		commentService: commentService,
 		accountService: accountService,
 	}
 }
 
+// ================================== ManageBlogUseCase =================================
 func (s *blogAppService) FindBlogs(ctx context.Context, query *usecases.FindBlogsQuery) ([]*blog.BlogEntity, error) {
 	return s.blogService.FindBlogs(ctx)
 }
@@ -132,3 +138,20 @@ func (s *blogAppService) DeleteBlog(ctx context.Context, id string) (*types.Dele
 		Payload:      id,
 	}, nil
 }
+
+// ================================== ManageBlogUseCase =================================
+
+// ================================== CommentBlogUseCase =================================
+func (a *blogAppService) AddCommentToBlog(ctx context.Context, blogId string, accountId string, params *usecases.AddCommentToBlogParams) (*comment.CommentEntity, error) {
+	return nil, nil
+}
+
+func (a *blogAppService) UpdateCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string, params *usecases.UpdateCommentOnBlogParams) (*comment.CommentEntity, error) {
+	return nil, nil
+}
+
+func (a *blogAppService) DeleteCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string) (*types.DeletedResult, error) {
+	return nil, nil
+}
+
+// ================================== CommentBlogUseCase =================================

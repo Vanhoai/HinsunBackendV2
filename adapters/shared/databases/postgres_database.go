@@ -61,7 +61,9 @@ func NewPostgresClient() (*PostgresClient, error) {
 	// 	&models.ProjectModel{},
 	// 	&models.BlogModel{},
 	// 	&models.CategoryModel{},
+	// 	&models.CommentModel{},
 	// )
+
 	log.Logger.Info("✅ Database connection established successfully")
 	return &PostgresClient{DB: gormDB}, nil
 }

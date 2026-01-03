@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gosimple/slug"
 )
 
 const (
@@ -20,6 +21,7 @@ const (
 type BlogEntity struct {
 	ID                       uuid.UUID                     `json:"id"`
 	AuthorID                 uuid.UUID                     `json:"authorId"`
+	Slug                     string                        `json:"slug"`
 	Languages                []values.MarkdownLanguageCode `json:"languages"` // Array of supported language codes
 	Categories               []string                      `json:"categories"`
 	Names                    values.MultiLangText          `json:"names"`        // Map of language code -> name
@@ -77,10 +79,25 @@ func NewBlogEntity(
 		return nil, err
 	}
 
+	blogSlug := ""
+	// prioritize English name for slug generation
+	if enName, exists := names["en"]; exists {
+		blogSlug = slug.Make(enName)
+	}
+
+	// fallback to first available name
+	if blogSlug == "" {
+		for _, name := range names {
+			blogSlug = slug.Make(name)
+			break
+		}
+	}
+
 	now := time.Now()
 	return &BlogEntity{
 		ID:                       uuid.New(),
 		AuthorID:                 authorID,
+		Slug:                     blogSlug,
 		Categories:               categories,
 		Names:                    names,
 		Languages:                languages,
