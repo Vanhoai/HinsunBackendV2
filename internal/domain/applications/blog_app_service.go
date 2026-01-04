@@ -142,16 +142,126 @@ func (s *blogAppService) DeleteBlog(ctx context.Context, id string) (*types.Dele
 // ================================== ManageBlogUseCase =================================
 
 // ================================== CommentBlogUseCase =================================
+func (a *blogAppService) FindAllCommentsOnBlog(ctx context.Context, blogId string) ([]*comment.CommentEntity, error) {
+	return a.commentService.FindCommentsByBlogID(ctx, blogId)
+}
+
 func (a *blogAppService) AddCommentToBlog(ctx context.Context, blogId string, accountId string, params *usecases.AddCommentToBlogParams) (*comment.CommentEntity, error) {
-	return nil, nil
+	// 1. Validate blog existence
+	blogEntity, err := a.blogService.FindBlog(ctx, blogId)
+	if err != nil {
+		return nil, err
+	}
+
+	if blogEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Blog with ID %s not found", blogId))
+	}
+
+	// 2. Validate account existence
+	accountEntity, err := a.accountService.FindAccountByID(ctx, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	if accountEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Account with ID %s not found", accountId))
+	}
+
+	// 3. Validate parent comment existence (if provided)
+	if params.ParentID != nil {
+		parentComment, err := a.commentService.FindComment(ctx, params.ParentID.String())
+		if err != nil {
+			return nil, err
+		}
+
+		if parentComment == nil {
+			return nil, failure.NewNotFoundFailure(fmt.Sprintf("Parent comment with ID %s not found", *params.ParentID))
+		}
+	}
+
+	// 4. Create new comment
+	newComment, err := a.commentService.CreateComment(
+		ctx,
+		accountEntity.ID,
+		blogEntity.ID,
+		params.ParentID,
+		params.Content,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newComment, nil
 }
 
 func (a *blogAppService) UpdateCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string, params *usecases.UpdateCommentOnBlogParams) (*comment.CommentEntity, error) {
-	return nil, nil
+	// 1. Validate blog existence
+	blogEntity, err := a.blogService.FindBlog(ctx, blogId)
+	if err != nil {
+		return nil, err
+	}
+
+	if blogEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Blog with ID %s not found", blogId))
+	}
+
+	// 2. Validate account existence
+	accountEntity, err := a.accountService.FindAccountByID(ctx, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	if accountEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Account with ID %s not found", accountId))
+	}
+
+	// 3. Check comment existence and ownership
+	updatedComment, err := a.commentService.UpdateCommentByOwner(
+		ctx,
+		commentId,
+		params.Content,
+		accountEntity.ID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedComment, nil
 }
 
 func (a *blogAppService) DeleteCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string) (*types.DeletedResult, error) {
-	return nil, nil
+	// 1. Validate blog existence
+	blogEntity, err := a.blogService.FindBlog(ctx, blogId)
+	if err != nil {
+		return nil, err
+	}
+
+	if blogEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Blog with ID %s not found", blogId))
+	}
+
+	// 2. Validate account existence
+	accountEntity, err := a.accountService.FindAccountByID(ctx, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	if accountEntity == nil {
+		return nil, failure.NewNotFoundFailure(fmt.Sprintf("Account with ID %s not found", accountId))
+	}
+
+	// 3. Delete comment
+	rowsAffected, err := a.commentService.DeleteComment(ctx, commentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.DeletedResult{
+		RowsAffected: rowsAffected,
+		Payload:      commentId,
+	}, nil
 }
 
 // ================================== CommentBlogUseCase =================================

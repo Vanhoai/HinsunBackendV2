@@ -13,9 +13,9 @@ const (
 
 type CommentEntity struct {
 	ID        uuid.UUID  `json:"id"`
-	AuthorID  uuid.UUID  `json:"authId"`
+	AuthorID  uuid.UUID  `json:"authorId"`
 	BlogID    uuid.UUID  `json:"blogId"`
-	ParentID  *uuid.UUID `json:"parentId,omitempty"`
+	ParentID  *uuid.UUID `json:"parentId"`
 	Content   string     `json:"content"`
 	Favorites int64      `json:"favorites"`
 	CreatedAt int64      `json:"createdAt"`

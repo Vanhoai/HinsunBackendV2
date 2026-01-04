@@ -57,7 +57,8 @@ type ManageBlogUseCase interface {
 // ================================== CommentBlogUseCase =================================
 
 type AddCommentToBlogParams struct {
-	Content string `json:"content" validate:"required,min=1,max=1000"`
+	ParentID *uuid.UUID `json:"parentId,omitempty"`
+	Content  string     `json:"content" validate:"required,min=1,max=1000"`
 }
 
 type UpdateCommentOnBlogParams struct {
@@ -65,7 +66,9 @@ type UpdateCommentOnBlogParams struct {
 }
 
 type CommentBlogUseCase interface {
+	FindAllCommentsOnBlog(ctx context.Context, blogId string) ([]*comment.CommentEntity, error)
 	AddCommentToBlog(ctx context.Context, blogId string, accountId string, params *AddCommentToBlogParams) (*comment.CommentEntity, error)
+
 	UpdateCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string, params *UpdateCommentOnBlogParams) (*comment.CommentEntity, error)
 	DeleteCommentOnBlog(ctx context.Context, blogId string, accountId string, commentId string) (*types.DeletedResult, error)
 }

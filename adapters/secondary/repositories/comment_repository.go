@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"hinsun-backend/adapters/shared/models"
 	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/domain/comment"
@@ -73,6 +74,24 @@ func (r *commentRepository) Finds(ctx context.Context) ([]*comment.CommentEntity
 	if err != nil {
 		return nil, failure.NewDatabaseFailure("Failed to retrieve comments from database").WithCause(err)
 	}
+
+	var commentEntities []*comment.CommentEntity
+	for _, commentModel := range comments {
+		commentEntities = append(commentEntities, commentModel.ToEntity())
+	}
+
+	return commentEntities, nil
+}
+
+func (r *commentRepository) FindByBlogID(ctx context.Context, blogId string) ([]*comment.CommentEntity, error) {
+	var comments []models.CommentModel
+	err := r.db.Model(&models.CommentModel{}).Where("blog_id = ?", blogId).Find(&comments).Error
+
+	if err != nil {
+		return nil, failure.NewDatabaseFailure("Failed to retrieve comments by blog ID from database").WithCause(err)
+	}
+
+	fmt.Printf("Retrieved %d comments for blog ID %s\n", len(comments), blogId)
 
 	var commentEntities []*comment.CommentEntity
 	for _, commentModel := range comments {

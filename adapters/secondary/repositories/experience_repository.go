@@ -20,7 +20,7 @@ type experienceRepository struct {
 }
 
 // NewExperienceRepository creates a new instance of ExperienceRepository
-func NewExperienceRepostory(db *gorm.DB) experience.ExperienceRepository {
+func NewExperienceRepository(db *gorm.DB) experience.ExperienceRepository {
 	return &experienceRepository{
 		db: db,
 	}

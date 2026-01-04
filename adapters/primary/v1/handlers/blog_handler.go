@@ -5,6 +5,7 @@ import (
 	"errors"
 	"hinsun-backend/adapters/shared/https"
 	"hinsun-backend/adapters/shared/middlewares"
+	"hinsun-backend/internal/core/failure"
 	"hinsun-backend/internal/domain/applications"
 	"hinsun-backend/internal/domain/usecases"
 	"net/http"
@@ -45,20 +46,15 @@ func (h *BlogHandler) Handler() chi.Router {
 		r.Get("/", h.findBlog)
 		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteBlog)
 		r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Put("/", h.updateBlog)
+
+		r.Route("/comments", func(r chi.Router) {
+			r.Get("/", h.findBlogComments)
+			r.With(h.authMiddleware.RequireAuth).Post("/", h.addCommentToBlog)
+
+			r.With(h.authMiddleware.RequireAuth).Put("/{commentId}", h.updateCommentOnBlog)
+			r.With(h.authMiddleware.RequireAuth).Delete("/{commentId}", h.deleteCommentOnBlog)
+		})
 	})
-
-	// Comment management routes
-	// r.Route("/comments", func(r chi.Router) {
-	// 	r.Get("/", h.findBlogComments)
-	// 	r.With(h.authMiddleware.RequireAuth).Post("/", h.createBlogComment)
-	// 	r.With(h.authMiddleware.RequireAuth, h.roleMiddleware.RequireAdmin).Delete("/", h.deleteMultipleBlogComments)
-
-	// 	r.Route("/{commentId}", func(r chi.Router) {
-	// 		r.Get("/", h.findBlogComment)
-	// 		r.With(h.authMiddleware.RequireAuth).Put("/", h.updateBlogComment)
-	// 		r.With(h.authMiddleware.RequireAuth).Delete("/", h.deleteBlogComment)
-	// 	})
-	// })
 
 	return r
 }
@@ -169,104 +165,93 @@ func (h *BlogHandler) deleteMultipleBlogs(w http.ResponseWriter, r *http.Request
 // ================================== Comment Management Handlers =================================
 
 func (h *BlogHandler) findBlogComments(w http.ResponseWriter, r *http.Request) {
-	// var query usecases.FindBlogCommentsQuery
-	// if err := https.BindQuery(r, &query); err != nil {
-	// 	https.BadRequest(w, err)
-	// 	return
-	// }
+	blogId := chi.URLParam(r, "id")
+	comments, err := h.app.FindAllCommentsOnBlog(r.Context(), blogId)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
 
-	// comments, err := h.app.FindBlogComments(r.Context(), &query)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
-
-	// https.ResponseSuccess(w, http.StatusOK, "Comments retrieved successfully", comments)
+	https.ResponseSuccess(w, http.StatusOK, "Comments retrieved successfully", comments)
 }
 
-func (h *BlogHandler) findBlogComment(w http.ResponseWriter, r *http.Request) {
-	// commentID := chi.URLParam(r, "commentId")
-	// comment, err := h.app.FindBlogComment(r.Context(), commentID)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
+func (h *BlogHandler) addCommentToBlog(w http.ResponseWriter, r *http.Request) {
+	blogId := chi.URLParam(r, "id")
 
-	// https.ResponseSuccess(w, http.StatusOK, "Comment retrieved successfully", comment)
+	// Get claims from context (set by AuthMiddleware)
+	claims, ok := middlewares.GetClaimsFromContext(r.Context())
+	if !ok {
+		https.RespondWithFailure(w, failure.NewAuthenticationFailure("authentication required"))
+		return
+	}
+
+	var params usecases.AddCommentToBlogParams
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
+
+	if err := h.validator.Struct(params); err != nil {
+		https.ValidationFailed(w, err)
+		return
+	}
+
+	comment, err := h.app.AddCommentToBlog(r.Context(), blogId, claims.AccountID, &params)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusCreated, "Comment created successfully", comment)
 }
 
-func (h *BlogHandler) createBlogComment(w http.ResponseWriter, r *http.Request) {
-	// var params usecases.CreateCommentParams
-	// if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-	// 	https.BadRequest(w, err)
-	// 	return
-	// }
+func (h *BlogHandler) updateCommentOnBlog(w http.ResponseWriter, r *http.Request) {
+	blogId := chi.URLParam(r, "id")
+	commentId := chi.URLParam(r, "commentId")
 
-	// if err := h.validator.Struct(params); err != nil {
-	// 	https.ValidationFailed(w, err)
-	// 	return
-	// }
+	// Get claims from context (set by AuthMiddleware)
+	claims, ok := middlewares.GetClaimsFromContext(r.Context())
+	if !ok {
+		https.RespondWithFailure(w, failure.NewAuthenticationFailure("authentication required"))
+		return
+	}
 
-	// comment, err := h.app.CreateBlogComment(r.Context(), &params)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
+	var params usecases.UpdateCommentOnBlogParams
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		https.BadRequest(w, err)
+		return
+	}
 
-	// https.ResponseSuccess(w, http.StatusCreated, "Comment created successfully", comment)
+	if err := h.validator.Struct(params); err != nil {
+		https.ValidationFailed(w, err)
+		return
+	}
+
+	updatedComment, err := h.app.UpdateCommentOnBlog(r.Context(), blogId, claims.AccountID, commentId, &params)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
+
+	https.ResponseSuccess(w, http.StatusOK, "Comment updated successfully", updatedComment)
 }
 
-func (h *BlogHandler) updateBlogComment(w http.ResponseWriter, r *http.Request) {
-	// commentID := chi.URLParam(r, "commentId")
-	// var params usecases.UpdateCommentParams
-	// if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-	// 	https.BadRequest(w, err)
-	// 	return
-	// }
+func (h *BlogHandler) deleteCommentOnBlog(w http.ResponseWriter, r *http.Request) {
+	blogId := chi.URLParam(r, "id")
+	commentId := chi.URLParam(r, "commentId")
 
-	// if err := h.validator.Struct(params); err != nil {
-	// 	https.ValidationFailed(w, err)
-	// 	return
-	// }
+	// Get claims from context (set by AuthMiddleware)
+	claims, ok := middlewares.GetClaimsFromContext(r.Context())
+	if !ok {
+		https.RespondWithFailure(w, failure.NewAuthenticationFailure("authentication required"))
+		return
+	}
 
-	// updatedComment, err := h.app.UpdateBlogComment(r.Context(), commentID, &params)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
+	deletedResult, err := h.app.DeleteCommentOnBlog(r.Context(), blogId, claims.AccountID, commentId)
+	if err != nil {
+		https.RespondWithFailure(w, err)
+		return
+	}
 
-	// https.ResponseSuccess(w, http.StatusOK, "Comment updated successfully", updatedComment)
-}
-
-func (h *BlogHandler) deleteBlogComment(w http.ResponseWriter, r *http.Request) {
-	// commentID := chi.URLParam(r, "commentId")
-	// deletedResult, err := h.app.DeleteBlogComment(r.Context(), commentID)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
-
-	// https.ResponseSuccess(w, http.StatusOK, "Comment deleted successfully", deletedResult)
-}
-
-func (h *BlogHandler) deleteMultipleBlogComments(w http.ResponseWriter, r *http.Request) {
-	// var query usecases.DeleteCommentsQuery
-	// if err := https.BindQuery(r, &query); err != nil {
-	// 	https.BadRequest(w, err)
-	// 	return
-	// }
-
-	// // Validate that at least one ID is provided
-	// if len(query.IDs) == 0 {
-	// 	https.BadRequest(w, errors.New("at least one id must be provided in ids parameter"))
-	// 	return
-	// }
-
-	// deletedResult, err := h.app.DeleteMultipleBlogComments(r.Context(), &query)
-	// if err != nil {
-	// 	https.RespondWithFailure(w, err)
-	// 	return
-	// }
-
-	// https.ResponseSuccess(w, http.StatusOK, "Comments deleted successfully", deletedResult)
+	https.ResponseSuccess(w, http.StatusOK, "Comment deleted successfully", deletedResult)
 }

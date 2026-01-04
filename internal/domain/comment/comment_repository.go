@@ -11,4 +11,5 @@ type CommentRepository interface {
 	DeleteMany(ctx context.Context, ids []string) (int, error)
 	Find(ctx context.Context, id string) (*CommentEntity, error)
 	Finds(ctx context.Context) ([]*CommentEntity, error)
+	FindByBlogID(ctx context.Context, blogId string) ([]*CommentEntity, error)
 }

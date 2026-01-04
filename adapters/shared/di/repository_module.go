@@ -14,11 +14,11 @@ import (
 	"gorm.io/gorm"
 )
 
-var RepositioryModule = fx.Module("repositories",
+var RepositoryModule = fx.Module("repositories",
 	fx.Provide(
 		ProvideExperienceRepository,
 		ProvideNotificationRepository,
-		PriovideAccountRepository,
+		ProvideAccountRepository,
 		ProvideBlogRepository,
 		ProvideProjectRepository,
 		ProvideCategoryRepository,
@@ -27,14 +27,14 @@ var RepositioryModule = fx.Module("repositories",
 )
 
 func ProvideExperienceRepository(db *gorm.DB) experience.ExperienceRepository {
-	return repositories.NewExperienceRepostory(db)
+	return repositories.NewExperienceRepository(db)
 }
 
 func ProvideNotificationRepository(db *gorm.DB) notification.NotificationRepository {
 	return repositories.NewNotificationRepository(db)
 }
 
-func PriovideAccountRepository(db *gorm.DB) account.AccountRepository {
+func ProvideAccountRepository(db *gorm.DB) account.AccountRepository {
 	return repositories.NewAccountRepository(db)
 }
 
